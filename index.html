@@ -236,9 +236,29 @@
         }
         .status-dot.online {
             background: #3aad6a;
+            animation: pulse 1.5s infinite;
         }
         .status-dot.offline {
             background: #c04a5a;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .logged-in-user {
+            background: #0f1f2f;
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #1a3a4a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .logged-in-user .phone {
+            font-weight: 600;
+            color: #7dffb3;
         }
     </style>
 </head>
@@ -247,7 +267,7 @@
 
         <div class="header">
             <h1>🎯 BHAU <span>LOTTO</span></h1>
-            <span class="badge">v2.0</span>
+            <span class="badge">v2.1</span>
         </div>
         <div class="sub">🔑 Default pass: Sanju2005 • Login • Cards • Withdraw</div>
 
@@ -418,20 +438,32 @@
                         body: JSON.stringify(payload)
                     });
                     const data = await resp.json();
+                    console.log('Login Response:', data);
+                    
                     if (resp.status === 200 && (data.code === 0 || data.success === true)) {
                         const ud = data.data || {};
                         const token = ud.accessToken || ud.token || data.accessToken || data.token;
-                        state.token = token;
-                        state.phone = phone;
-                        state.userData = ud;
-                        state.isLoggedIn = true;
-                        localStorage.setItem('bhau_token', token);
-                        localStorage.setItem('bhau_phone', phone);
-                        return { success: true, token: token, data: ud };
+                        
+                        if (token) {
+                            state.token = token;
+                            state.phone = phone;
+                            state.userData = ud;
+                            state.isLoggedIn = true;
+                            
+                            // Save to localStorage
+                            localStorage.setItem('bhau_token', token);
+                            localStorage.setItem('bhau_phone', phone);
+                            localStorage.setItem('bhau_logged_in', 'true');
+                            
+                            return { success: true, token: token, data: ud };
+                        } else {
+                            return { success: false, msg: 'Token not found in response' };
+                        }
                     } else {
                         return { success: false, msg: data.msg || 'Login failed' };
                     }
                 } catch (e) {
+                    console.error('Login error:', e);
                     return { success: false, msg: e.message || 'Network error' };
                 }
             }
@@ -472,6 +504,7 @@
                         });
                         if (resp.status === 200) {
                             const data = await resp.json();
+                            console.log('Balance Response:', data);
                             if (data.code === 0) {
                                 const ud = data.data || {};
                                 const balance = ud.balance ?? ud.coin ?? ud.coins ?? ud.amount ?? ud.credit ?? ud.totalBalance ?? null;
@@ -524,6 +557,7 @@
                         });
                         if (resp.status === 200) {
                             const data = await resp.json();
+                            console.log('Cards Response:', data);
                             if (data.code === 0) {
                                 let cards = data.data;
                                 if (Array.isArray(cards) && cards.length > 0) {
@@ -582,6 +616,7 @@
                 try {
                     const resp = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
                     const data = await resp.json();
+                    console.log('Add Card Response:', data);
                     if (resp.status === 200 && (data.code === 0 || data.success === true)) {
                         return { success: true };
                     } else {
@@ -623,6 +658,7 @@
                         body: JSON.stringify(payload)
                     });
                     const data = await resp.json();
+                    console.log('Withdraw Response:', data);
                     if (resp.status === 200 && (data.code === 0 || data.success === true)) {
                         return { success: true };
                     } else {
@@ -635,6 +671,8 @@
 
             // ─── UI Render ─────────────────────────────────────
             function renderInfo() {
+                console.log('Rendering info. isLoggedIn:', state.isLoggedIn, 'token:', state.token);
+                
                 if (!state.isLoggedIn || !state.token) {
                     infoContent.innerHTML = `
                         <span class="text-muted">🔒 Not logged in</span>
@@ -644,33 +682,38 @@
                     `;
                     return;
                 }
-                let html = '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">';
-                html += '<span class="badge">📱 ' + (state.phone || '---') + '</span>';
-                html += '<span class="badge" style="background:#1a2a3a;"><span class="status-dot online"></span> Connected</span>';
+                
+                let html = '<div class="logged-in-user">';
+                html += '<span class="status-dot online"></span>';
+                html += '<span class="phone">📱 ' + (state.phone || '---') + '</span>';
+                html += '</div>';
+                
+                html += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
                 if (state.balance !== null) {
-                    html += ' <span class="balance-box">💰 ' + state.balance + '</span>';
+                    html += ' <span class="balance-box">💰 Balance: ' + state.balance + '</span>';
                 } else {
-                    html += ' <span class="badge" style="background:#2a1f3a;">⏳ Loading...</span>';
+                    html += ' <span class="badge" style="background:#2a1f3a;">⏳ Loading balance...</span>';
                 }
                 html += '</div>';
                 
                 if (state.bankCards && state.bankCards.length) {
                     html += '<div class="bank-list">';
-                    state.bankCards.forEach(function(c) {
+                    state.bankCards.forEach(function(c, index) {
                         var id = c.id || c.cardId || c.card_id || '?';
                         var holder = c.accountName || c.holderName || c.name || 'Unknown';
                         var bank = c.bankName || c.bank || '';
                         var acc = c.accountNumber || c.cardNumber || c.cardNo || '';
                         var masked = acc && acc.length > 6 ? acc.slice(0, 4) + '****' + acc.slice(-4) : acc;
-                        html += '<div class="bank-item"><div><strong>' + holder + '</strong>' +
-                            (bank ? ' • ' + bank : '') +
-                            '</div><div class="text-muted" style="font-size:12px;">' + masked +
+                        html += '<div class="bank-item">';
+                        html += '<div><strong>#' + (index + 1) + ' ' + holder + '</strong>' + (bank ? ' • ' + bank : '') + '</div>';
+                        html += '<div class="text-muted" style="font-size:12px;">' + masked +
                             ' • IFSC: ' + (c.ifscCode || c.ifsCode || '---') +
-                            ' • ID: ' + id + '</div></div>';
+                            ' • ID: ' + id + '</div>';
+                        html += '</div>';
                     });
                     html += '</div>';
                 } else {
-                    html += '<div class="text-muted" style="margin-top:10px;">💳 No bank cards added</div>';
+                    html += '<div class="text-muted" style="margin-top:10px;">💳 No bank cards added yet</div>';
                 }
                 infoContent.innerHTML = html;
             }
@@ -715,6 +758,7 @@
                 
                 if (result.success) {
                     showToast(loginStatus, '✅ Login successful!', 'success');
+                    console.log('Login success. State:', state);
                     refreshAll();
                 } else {
                     showToast(loginStatus, '❌ ' + (result.msg || 'Login failed'), 'error');
@@ -826,13 +870,33 @@
             function restoreSession() {
                 const savedToken = localStorage.getItem('bhau_token');
                 const savedPhone = localStorage.getItem('bhau_phone');
-                if (savedToken && savedPhone) {
+                const savedLoggedIn = localStorage.getItem('bhau_logged_in');
+                
+                console.log('Restoring session:', { savedToken, savedPhone, savedLoggedIn });
+                
+                if (savedToken && savedPhone && savedLoggedIn === 'true') {
                     state.token = savedToken;
                     state.phone = savedPhone;
                     state.isLoggedIn = true;
                     phoneInput.value = savedPhone;
+                    console.log('Session restored. State:', state);
                     refreshAll();
+                    return true;
                 }
+                return false;
+            }
+
+            // ─── Force refresh button ─────────────────────────
+            function addDebugButtons() {
+                // Add a hidden refresh button for debugging
+                const refreshBtn = document.createElement('button');
+                refreshBtn.textContent = '🔄 Refresh';
+                refreshBtn.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#1a2a3a;color:#8895bb;border:1px solid #2a3a5a;border-radius:20px;padding:5px 12px;font-size:10px;cursor:pointer;z-index:999;opacity:0.3;';
+                refreshBtn.onclick = function() {
+                    console.log('Manual refresh. State:', state);
+                    refreshAll();
+                };
+                document.body.appendChild(refreshBtn);
             }
 
             // ─── Init ──────────────────────────────────────────
@@ -863,7 +927,13 @@
                     if (e.key === 'Enter') handleLogin();
                 });
 
-                restoreSession();
+                // Try to restore session
+                const restored = restoreSession();
+                if (!restored) {
+                    renderInfo();
+                }
+
+                addDebugButtons();
             }
 
             if (document.readyState === 'loading') {
