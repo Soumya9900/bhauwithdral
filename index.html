@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>Anna / BHau Lotto Tool</title>
+    <title>BHau Lotto Tool</title>
     <style>
         * {
             margin: 0;
@@ -36,7 +36,7 @@
             margin-bottom: 4px;
         }
         .header h1 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -44,9 +44,9 @@
         }
         .header h1 span {
             background: #2f3b5a;
-            padding: 2px 12px;
+            padding: 2px 14px;
             border-radius: 40px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
             color: #b7c9f2;
         }
@@ -56,32 +56,6 @@
             margin-bottom: 18px;
             border-left: 3px solid #3b4b75;
             padding-left: 12px;
-        }
-        .game-selector {
-            display: flex;
-            gap: 8px;
-            background: #10172b;
-            padding: 5px;
-            border-radius: 60px;
-            margin-bottom: 18px;
-            border: 1px solid #29344f;
-        }
-        .game-btn {
-            flex: 1;
-            padding: 10px 0;
-            border: none;
-            border-radius: 40px;
-            background: transparent;
-            color: #8895bb;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .game-btn.active {
-            background: #2b3b64;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 20, 80, 0.5);
         }
         .card {
             background: #10182b;
@@ -162,6 +136,12 @@
             padding: 10px 12px;
             font-size: 13px;
         }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 5px 0 #0f1629 !important;
+        }
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -183,6 +163,7 @@
             border: 1px solid #2e3d62;
             font-weight: 600;
             margin-left: 6px;
+            color: #7dffb3;
         }
         .bank-list {
             margin-top: 10px;
@@ -234,10 +215,8 @@
         .toast.success {
             border-left-color: #3aad6a;
         }
-        .divider {
-            height: 1px;
-            background: #1e2942;
-            margin: 14px 0;
+        .toast.info {
+            border-left-color: #5a76b0;
         }
         .footer {
             font-size: 11px;
@@ -245,12 +224,21 @@
             text-align: center;
             margin-top: 16px;
         }
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
         #infoContent {
             min-height: 60px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.online {
+            background: #3aad6a;
+        }
+        .status-dot.offline {
+            background: #c04a5a;
         }
     </style>
 </head>
@@ -258,16 +246,12 @@
     <div class="container" id="app">
 
         <div class="header">
-            <h1>🎯 LOTTO <span id="gameLabel">Anna</span></h1>
+            <h1>🎯 BHAU <span>LOTTO</span></h1>
             <span class="badge">v2.0</span>
         </div>
         <div class="sub">🔑 Default pass: Sanju2005 • Login • Cards • Withdraw</div>
 
-        <div class="game-selector">
-            <button class="game-btn active" data-game="anna" id="annaBtn">Anna</button>
-            <button class="game-btn" data-game="bhau" id="bhauBtn">BHau</button>
-        </div>
-
+        <!-- Login Card -->
         <div class="card">
             <div class="input-group">
                 <label>📱 Phone (10 digits)</label>
@@ -277,6 +261,7 @@
             <div id="loginStatus" class="toast hidden"></div>
         </div>
 
+        <!-- Action Buttons -->
         <div class="grid-2">
             <button class="btn btn-outline btn-sm" id="balanceBtn">💰 Balance</button>
             <button class="btn btn-outline btn-sm" id="cardsBtn">🏦 Cards</button>
@@ -284,12 +269,14 @@
             <button class="btn btn-outline btn-sm" id="withdrawBtn">💸 Withdraw</button>
         </div>
 
+        <!-- Info Panel -->
         <div class="card mt-2" style="background:#0e162a;">
             <div id="infoContent">
                 <span class="text-muted">👋 Login to see account details</span>
             </div>
         </div>
 
+        <!-- Add Card Form -->
         <div id="addCardForm" class="card hidden" style="background:#111b30;">
             <div class="input-group"><label>👤 Full Name</label><input id="cardName" placeholder="Ananya Sharma" /></div>
             <div class="input-group"><label>💳 Account Number</label><input id="cardNumber" placeholder="1234567890" /></div>
@@ -302,6 +289,7 @@
             <div id="addCardStatus" class="toast hidden mt-2"></div>
         </div>
 
+        <!-- Withdraw Form -->
         <div id="withdrawForm" class="card hidden" style="background:#111b30;">
             <div class="input-group"><label>💰 Amount</label><input type="number" id="withdrawAmount" placeholder="100" min="1" /></div>
             <div class="flex-row">
@@ -311,7 +299,7 @@
             <div id="withdrawStatus" class="toast hidden mt-2"></div>
         </div>
 
-        <div class="footer">Anna / BHau Lotto Tool • GitHub Pages</div>
+        <div class="footer">BHau Lotto Tool • GitHub Pages</div>
     </div>
 
     <script>
@@ -320,7 +308,6 @@
 
             // ─── STATE ──────────────────────────────────────────
             const state = {
-                game: 'anna',
                 token: null,
                 phone: null,
                 bankCards: [],
@@ -331,9 +318,6 @@
 
             // ─── DOM refs ──────────────────────────────────────
             const $ = id => document.getElementById(id);
-            const gameLabel = $('gameLabel');
-            const annaBtn = $('annaBtn');
-            const bhauBtn = $('bhauBtn');
             const phoneInput = $('phoneInput');
             const loginBtn = $('loginBtn');
             const loginStatus = $('loginStatus');
@@ -356,51 +340,25 @@
             const cancelWithdraw = $('cancelWithdraw');
             const withdrawStatus = $('withdrawStatus');
 
-            // ─── helpers ──────────────────────────────────────
-            function showToast(el, msg, type) {
-                el.classList.remove('hidden', 'error', 'success', 'info');
-                el.textContent = msg;
-                if (type) el.classList.add(type);
-                else el.classList.add('info');
-                clearTimeout(el._toastTimer);
-                el._toastTimer = setTimeout(() => el.classList.add('hidden'), 5000);
-            }
-
-            function getBaseUrls(game) {
-                if (game === 'anna') {
-                    return {
-                        base: 'https://api.annagames.app',
-                        pay: 'https://api.an223366wb0x.com',
-                        card: 'https://api.annagames.app',
-                        packageId: 1,
-                        packageInfo: 'com.lottepro.sambadpro',
-                        channelId: 'anna',
-                        origin: 'https://playannalotto.com',
-                        referer: 'https://playannalotto.com/'
-                    };
-                } else {
-                    return {
-                        base: 'https://api.bh2255.xyz',
-                        pay: 'https://api.bh556677ww.com',
-                        card: 'https://api.bh2266.xyz',
-                        packageId: 2,
-                        packageInfo: 'com.resulta.checka',
-                        channelId: 'Samsung',
-                        origin: 'https://playbhau.com',
-                        referer: 'https://playbhau.com/'
-                    };
-                }
-            }
-
+            // ─── BHau API Config ──────────────────────────────
             function getConfig() {
-                return getBaseUrls(state.game);
+                return {
+                    base: 'https://api.bh2255.xyz',
+                    pay: 'https://api.bh556677ww.com',
+                    card: 'https://api.bh2266.xyz',
+                    packageId: 2,
+                    packageInfo: 'com.resulta.checka',
+                    channelId: 'Samsung',
+                    origin: 'https://playbhau.com',
+                    referer: 'https://playbhau.com/'
+                };
             }
 
             function getDeviceId() {
-                let id = localStorage.getItem('lotto_device_id');
+                let id = localStorage.getItem('bhau_device_id');
                 if (!id) {
                     id = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
-                    localStorage.setItem('lotto_device_id', id);
+                    localStorage.setItem('bhau_device_id', id);
                 }
                 return id;
             }
@@ -411,7 +369,17 @@
 
             function getReqDate() { return Date.now(); }
 
-            // ─── API calls ─────────────────────────────────────
+            // ─── Toast Helper ──────────────────────────────────
+            function showToast(el, msg, type) {
+                el.classList.remove('hidden', 'error', 'success', 'info');
+                el.textContent = msg;
+                if (type) el.classList.add(type);
+                else el.classList.add('info');
+                clearTimeout(el._toastTimer);
+                el._toastTimer = setTimeout(() => el.classList.add('hidden'), 5000);
+            }
+
+            // ─── API Calls ─────────────────────────────────────
             async function apiLogin(phone, password) {
                 password = password || 'Sanju2005';
                 const cfg = getConfig();
@@ -457,9 +425,8 @@
                         state.phone = phone;
                         state.userData = ud;
                         state.isLoggedIn = true;
-                        // Save token to localStorage for persistence
-                        localStorage.setItem('lotto_token_' + state.game, token);
-                        localStorage.setItem('lotto_phone_' + state.game, phone);
+                        localStorage.setItem('bhau_token', token);
+                        localStorage.setItem('bhau_phone', phone);
                         return { success: true, token: token, data: ud };
                     } else {
                         return { success: false, msg: data.msg || 'Login failed' };
@@ -485,9 +452,11 @@
                     reqDate: reqDate,
                     ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
                 };
-                const endpoints = state.game === 'bhau' ?
-                    [cfg.base + '/app/user/getBalanceV2?gameType=POST', cfg.base + '/app/user/info'] :
-                    [cfg.base + '/app/user/info', cfg.base + '/app/user/getBalance'];
+                const endpoints = [
+                    cfg.base + '/app/user/getBalanceV2?gameType=POST',
+                    cfg.base + '/app/user/info',
+                    cfg.base + '/app/user/getBalance'
+                ];
                 for (const url of endpoints) {
                     try {
                         const resp = await fetch(url, {
@@ -505,8 +474,7 @@
                             const data = await resp.json();
                             if (data.code === 0) {
                                 const ud = data.data || {};
-                                const balance = ud.balance ?? ud.coin ?? ud.coins ?? ud.amount ?? ud.credit ?? ud
-                                    .totalBalance ?? null;
+                                const balance = ud.balance ?? ud.coin ?? ud.coins ?? ud.amount ?? ud.credit ?? ud.totalBalance ?? null;
                                 if (balance !== null && balance !== undefined) {
                                     state.balance = balance;
                                     return { success: true, balance: balance };
@@ -534,16 +502,12 @@
                     versionCode: '999',
                     visitor: visitor
                 };
-                let endpoints = [];
-                if (state.game === 'bhau') {
-                    endpoints = [
-                        'https://api.bh556677wplus.com/app/card/info',
-                        cfg.card + '/app/card/list',
-                        cfg.pay + '/app/card/info'
-                    ];
-                } else {
-                    endpoints = [cfg.base + '/app/user/bankCardList', cfg.base + '/app/user/cardList'];
-                }
+                const endpoints = [
+                    'https://api.bh556677wplus.com/app/card/info',
+                    cfg.card + '/app/card/list',
+                    cfg.pay + '/app/card/info',
+                    cfg.card + '/app/card/info'
+                ];
                 for (const url of endpoints) {
                     try {
                         const resp = await fetch(url, {
@@ -589,56 +553,32 @@
                 const cfg = getConfig();
                 const visitor = getVisitor();
                 const reqDate = getReqDate();
-                let url, payload, headers;
-                if (state.game === 'bhau') {
-                    url = cfg.pay + '/app/card/add';
-                    payload = {
-                        channel: 'h5',
-                        channelId: cfg.channelId,
-                        lang: 'en_US',
-                        visitor: visitor,
-                        cardName: name,
-                        cardNumber: number,
-                        email: email || '',
-                        ifsCode: ifsc,
-                        packageId: cfg.packageId,
-                        packageInfo: cfg.packageInfo,
-                        reqDate: reqDate,
-                        smsCode: '',
-                        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                        upid: '',
-                        versionCode: '999'
-                    };
-                    headers = {
-                        'accept': 'application/json',
-                        'content-type': 'application/json',
-                        'token': state.token,
-                        'packageid': String(cfg.packageId),
-                        'origin': cfg.origin,
-                        'referer': cfg.referer
-                    };
-                } else {
-                    url = cfg.card + '/app/card/add';
-                    payload = {
-                        channel: 'h5',
-                        channelId: cfg.channelId,
-                        lang: 'en_US',
-                        visitor: visitor,
-                        cardName: name,
-                        cardNumber: number,
-                        ifsCode: ifsc,
-                        packageId: cfg.packageId,
-                        packageInfo: cfg.packageInfo,
-                        reqDate: reqDate,
-                        versionCode: '999',
-                        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                    };
-                    headers = {
-                        'accept': 'application/json',
-                        'content-type': 'application/json',
-                        'token': state.token
-                    };
-                }
+                const url = cfg.pay + '/app/card/add';
+                const payload = {
+                    channel: 'h5',
+                    channelId: cfg.channelId,
+                    lang: 'en_US',
+                    visitor: visitor,
+                    cardName: name,
+                    cardNumber: number,
+                    email: email || '',
+                    ifsCode: ifsc,
+                    packageId: cfg.packageId,
+                    packageInfo: cfg.packageInfo,
+                    reqDate: reqDate,
+                    smsCode: '',
+                    ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    upid: '',
+                    versionCode: '999'
+                };
+                const headers = {
+                    'accept': 'application/json',
+                    'content-type': 'application/json',
+                    'token': state.token,
+                    'packageid': String(cfg.packageId),
+                    'origin': cfg.origin,
+                    'referer': cfg.referer
+                };
                 try {
                     const resp = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
                     const data = await resp.json();
@@ -693,20 +633,27 @@
                 }
             }
 
-            // ─── UI render ─────────────────────────────────────
+            // ─── UI Render ─────────────────────────────────────
             function renderInfo() {
                 if (!state.isLoggedIn || !state.token) {
-                    infoContent.innerHTML = '<span class="text-muted">🔒 Not logged in</span>';
+                    infoContent.innerHTML = `
+                        <span class="text-muted">🔒 Not logged in</span>
+                        <div style="margin-top:8px;font-size:12px;color:#4a5a7a;">
+                            <span class="status-dot offline"></span> Disconnected
+                        </div>
+                    `;
                     return;
                 }
-                let html = '<div>';
+                let html = '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">';
                 html += '<span class="badge">📱 ' + (state.phone || '---') + '</span>';
+                html += '<span class="badge" style="background:#1a2a3a;"><span class="status-dot online"></span> Connected</span>';
                 if (state.balance !== null) {
                     html += ' <span class="balance-box">💰 ' + state.balance + '</span>';
                 } else {
-                    html += ' <span class="badge" style="background:#2a1f3a;">⏳ Loading balance...</span>';
+                    html += ' <span class="badge" style="background:#2a1f3a;">⏳ Loading...</span>';
                 }
                 html += '</div>';
+                
                 if (state.bankCards && state.bankCards.length) {
                     html += '<div class="bank-list">';
                     state.bankCards.forEach(function(c) {
@@ -730,7 +677,6 @@
 
             function refreshAll() {
                 if (state.isLoggedIn && state.token) {
-                    // Show loading state
                     infoContent.innerHTML = '<span class="text-muted">⏳ Loading account data...</span>';
                     
                     apiGetBalance().then(function(r) {
@@ -751,7 +697,7 @@
                 }
             }
 
-            // ─── event handlers ──────────────────────────────
+            // ─── Event Handlers ──────────────────────────────
             async function handleLogin() {
                 var phone = phoneInput.value.trim().replace(/\D/g, '');
                 if (phone.length !== 10) {
@@ -772,40 +718,6 @@
                     refreshAll();
                 } else {
                     showToast(loginStatus, '❌ ' + (result.msg || 'Login failed'), 'error');
-                }
-            }
-
-            function switchGame(game) {
-                // Save current state before switching
-                if (state.game !== game) {
-                    state.game = game;
-                    gameLabel.textContent = game === 'anna' ? 'Anna' : 'BHau';
-                    annaBtn.classList.toggle('active', game === 'anna');
-                    bhauBtn.classList.toggle('active', game === 'bhau');
-                    
-                    // Try to restore saved session for this game
-                    const savedToken = localStorage.getItem('lotto_token_' + game);
-                    const savedPhone = localStorage.getItem('lotto_phone_' + game);
-                    
-                    if (savedToken && savedPhone) {
-                        state.token = savedToken;
-                        state.phone = savedPhone;
-                        state.isLoggedIn = true;
-                        state.bankCards = [];
-                        state.balance = null;
-                        refreshAll();
-                    } else {
-                        state.token = null;
-                        state.phone = null;
-                        state.isLoggedIn = false;
-                        state.bankCards = [];
-                        state.balance = null;
-                        renderInfo();
-                    }
-                    
-                    loginStatus.classList.add('hidden');
-                    addCardForm.classList.add('hidden');
-                    withdrawForm.classList.add('hidden');
                 }
             }
 
@@ -885,7 +797,6 @@
                     return;
                 }
                 
-                // Check balance first
                 var bal = await apiGetBalance();
                 if (bal.success && bal.balance < amt) {
                     showToast(withdrawStatus, '❌ Insufficient balance: ' + bal.balance, 'error');
@@ -911,10 +822,10 @@
                 }
             }
 
-            // ─── Auto-restore session ─────────────────────────
+            // ─── Auto-restore Session ─────────────────────────
             function restoreSession() {
-                const savedToken = localStorage.getItem('lotto_token_' + state.game);
-                const savedPhone = localStorage.getItem('lotto_phone_' + state.game);
+                const savedToken = localStorage.getItem('bhau_token');
+                const savedPhone = localStorage.getItem('bhau_phone');
                 if (savedToken && savedPhone) {
                     state.token = savedToken;
                     state.phone = savedPhone;
@@ -924,12 +835,9 @@
                 }
             }
 
-            // ─── init ──────────────────────────────────────────
+            // ─── Init ──────────────────────────────────────────
             function init() {
-                annaBtn.addEventListener('click', function() { switchGame('anna'); });
-                bhauBtn.addEventListener('click', function() { switchGame('bhau'); });
                 loginBtn.addEventListener('click', handleLogin);
-                
                 balanceBtn.addEventListener('click', function() {
                     if (state.isLoggedIn && state.token) {
                         apiGetBalance().then(function() { renderInfo(); });
@@ -937,7 +845,6 @@
                         showToast(loginStatus, '⚠️ Please login first', 'error');
                     }
                 });
-                
                 cardsBtn.addEventListener('click', function() {
                     if (state.isLoggedIn && state.token) {
                         apiGetCards().then(function() { renderInfo(); });
@@ -945,26 +852,20 @@
                         showToast(loginStatus, '⚠️ Please login first', 'error');
                     }
                 });
-                
                 addCardBtn.addEventListener('click', showAddCard);
                 cancelAddCard.addEventListener('click', function() { addCardForm.classList.add('hidden'); });
                 submitCardBtn.addEventListener('click', handleAddCard);
-                
                 withdrawBtn.addEventListener('click', showWithdraw);
                 cancelWithdraw.addEventListener('click', function() { withdrawForm.classList.add('hidden'); });
                 submitWithdrawBtn.addEventListener('click', handleWithdraw);
 
-                // Enter key support
                 phoneInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') handleLogin();
                 });
 
-                // Initial render
-                switchGame('anna');
                 restoreSession();
             }
 
-            // run
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
