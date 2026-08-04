@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Anna Lotto • BHau Lotto Tool</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Anna / BHau Lotto Tool</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,7 @@
             padding: 16px;
         }
         .container {
-            max-width: 500px;
+            max-width: 520px;
             width: 100%;
             background: #141a2b;
             border-radius: 32px;
@@ -29,37 +29,41 @@
             color: #eef2f9;
             border: 1px solid #2a3450;
         }
-        h1 {
-            font-size: 24px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .header h1 {
+            font-size: 22px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 4px;
-            letter-spacing: -0.3px;
+            gap: 8px;
         }
-        h1 span {
+        .header h1 span {
             background: #2f3b5a;
             padding: 2px 12px;
             border-radius: 40px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #b7c9f2;
         }
         .sub {
             color: #8895bb;
-            font-size: 14px;
-            margin-bottom: 20px;
+            font-size: 13px;
+            margin-bottom: 18px;
             border-left: 3px solid #3b4b75;
             padding-left: 12px;
         }
         .game-selector {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: #10172b;
-            padding: 6px;
+            padding: 5px;
             border-radius: 60px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             border: 1px solid #29344f;
         }
         .game-btn {
@@ -70,39 +74,39 @@
             background: transparent;
             color: #8895bb;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             transition: 0.2s;
         }
         .game-btn.active {
             background: #2b3b64;
-            color: white;
+            color: #fff;
             box-shadow: 0 4px 12px rgba(0, 20, 80, 0.5);
         }
         .card {
             background: #10182b;
             border-radius: 24px;
             padding: 16px 18px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             border: 1px solid #25304a;
         }
         .input-group {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .input-group label {
             display: block;
             font-size: 13px;
             font-weight: 500;
             color: #a5b3d6;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .input-group input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 13px 16px;
             background: #0f1629;
             border: 1px solid #293753;
             border-radius: 40px;
-            color: white;
+            color: #fff;
             font-size: 15px;
             outline: none;
             transition: 0.2s;
@@ -119,22 +123,22 @@
             flex: 1;
         }
         .btn {
-            padding: 14px 18px;
+            padding: 13px 16px;
             border: none;
             border-radius: 60px;
             font-weight: 700;
             font-size: 15px;
             background: #2a3b6a;
-            color: white;
+            color: #fff;
             cursor: pointer;
             transition: 0.15s;
             width: 100%;
             text-align: center;
-            box-shadow: 0 6px 0 #0f1629;
+            box-shadow: 0 5px 0 #0f1629;
         }
         .btn:active {
             transform: translateY(4px);
-            box-shadow: 0 2px 0 #0f1629;
+            box-shadow: 0 1px 0 #0f1629;
         }
         .btn-primary {
             background: #3d5aa0;
@@ -151,6 +155,9 @@
             color: #c6d2f0;
             box-shadow: none;
         }
+        .btn-outline:active {
+            transform: translateY(2px);
+        }
         .btn-sm {
             padding: 10px 12px;
             font-size: 13px;
@@ -162,7 +169,7 @@
         }
         .badge {
             background: #1f2a47;
-            padding: 6px 14px;
+            padding: 5px 14px;
             border-radius: 40px;
             font-size: 12px;
             color: #b3c2e6;
@@ -171,23 +178,24 @@
         .balance-box {
             background: #0d1529;
             border-radius: 60px;
-            padding: 8px 18px;
+            padding: 6px 18px;
             display: inline-block;
             border: 1px solid #2e3d62;
             font-weight: 600;
+            margin-left: 6px;
         }
         .bank-list {
-            margin-top: 12px;
-            max-height: 220px;
+            margin-top: 10px;
+            max-height: 200px;
             overflow-y: auto;
             border-top: 1px solid #1d2740;
-            padding-top: 12px;
+            padding-top: 10px;
         }
         .bank-item {
             background: #0c1427;
             border-radius: 16px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
+            padding: 11px 14px;
+            margin-bottom: 7px;
             border-left: 4px solid #3d5aa0;
             font-size: 14px;
         }
@@ -195,561 +203,775 @@
             color: #8895bb;
             font-size: 12px;
         }
-        .mt-2 { margin-top: 12px; }
-        .mt-3 { margin-top: 20px; }
-        .text-center { text-align: center; }
-        .text-muted { color: #8895bb; font-size: 13px; }
-        .divider {
-            height: 1px;
-            background: #1e2942;
-            margin: 16px 0;
+        .mt-2 {
+            margin-top: 12px;
         }
-        .mono {
-            font-family: 'SF Mono', monospace;
-            letter-spacing: 0.3px;
+        .mt-3 {
+            margin-top: 18px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #8895bb;
+            font-size: 13px;
+        }
+        .hidden {
+            display: none !important;
         }
         .toast {
             background: #1b2542;
             border-radius: 40px;
-            padding: 12px 18px;
-            margin-top: 12px;
+            padding: 11px 16px;
+            margin-top: 10px;
             border-left: 4px solid #5a76b0;
             font-size: 14px;
         }
-        .toast.error { border-left-color: #c04a5a; background: #231b2b; }
-        .toast.success { border-left-color: #3aad6a; }
-        .hidden { display: none; }
-        .pointer { cursor: pointer; }
-        ::-webkit-scrollbar { width: 4px; background: #0f1629; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb { background: #31456b; border-radius: 8px; }
+        .toast.error {
+            border-left-color: #c04a5a;
+            background: #231b2b;
+        }
+        .toast.success {
+            border-left-color: #3aad6a;
+        }
+        .divider {
+            height: 1px;
+            background: #1e2942;
+            margin: 14px 0;
+        }
+        .footer {
+            font-size: 11px;
+            color: #4a5a7a;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        #infoContent {
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
-<div class="container" id="app">
-    <h1>🎯 LOTTO <span id="gameLabel">Anna</span></h1>
-    <div class="sub">🔑 Default pass: Sanju2005 • Login • Cards • Withdraw</div>
+    <div class="container" id="app">
 
-    <!-- game toggle -->
-    <div class="game-selector">
-        <button class="game-btn active" data-game="anna" id="annaBtn">Anna</button>
-        <button class="game-btn" data-game="bhau" id="bhauBtn">BHau</button>
-    </div>
-
-    <!-- login card -->
-    <div class="card">
-        <div class="input-group">
-            <label>📱 Phone (10 digits)</label>
-            <input type="tel" id="phoneInput" placeholder="9876543210" maxlength="10" inputmode="numeric">
+        <div class="header">
+            <h1>🎯 LOTTO <span id="gameLabel">Anna</span></h1>
+            <span class="badge">v2.0</span>
         </div>
-        <button class="btn btn-primary" id="loginBtn">🔑 Login (auto password)</button>
-        <div id="loginStatus" class="toast hidden"></div>
-    </div>
+        <div class="sub">🔑 Default pass: Sanju2005 • Login • Cards • Withdraw</div>
 
-    <!-- action grid -->
-    <div class="grid-2">
-        <button class="btn btn-outline btn-sm" id="balanceBtn">💰 Balance</button>
-        <button class="btn btn-outline btn-sm" id="cardsBtn">🏦 Cards</button>
-        <button class="btn btn-outline btn-sm" id="addCardBtn">➕ Add Card</button>
-        <button class="btn btn-outline btn-sm" id="withdrawBtn">💸 Withdraw</button>
-    </div>
-
-    <!-- dynamic info -->
-    <div id="infoPanel" class="card mt-2" style="background: #0e162a;">
-        <div id="infoContent">
-            <span class="text-muted">👋 Login to see account details</span>
+        <div class="game-selector">
+            <button class="game-btn active" data-game="anna" id="annaBtn">Anna</button>
+            <button class="game-btn" data-game="bhau" id="bhauBtn">BHau</button>
         </div>
-    </div>
 
-    <!-- extra: add card form (hidden) -->
-    <div id="addCardForm" class="card hidden" style="background: #111b30;">
-        <div class="input-group"><label>👤 Full Name</label><input id="cardName" placeholder="Ananya Sharma" value="Ananya Sharma"></div>
-        <div class="input-group"><label>💳 Account Number</label><input id="cardNumber" placeholder="1234567890"></div>
-        <div class="input-group"><label>🏛️ IFSC</label><input id="ifscCode" placeholder="MAHB0002009" value="MAHB0002009"></div>
-        <div class="input-group"><label>📧 Email (optional)</label><input id="cardEmail" placeholder="ananya@gmail.com"></div>
-        <div class="flex-row">
-            <button class="btn btn-success btn-sm" id="submitCardBtn">✅ Add Card</button>
-            <button class="btn btn-outline btn-sm" id="cancelAddCard">Cancel</button>
+        <div class="card">
+            <div class="input-group">
+                <label>📱 Phone (10 digits)</label>
+                <input type="tel" id="phoneInput" placeholder="9876543210" maxlength="10" inputmode="numeric" />
+            </div>
+            <button class="btn btn-primary" id="loginBtn">🔑 Login (auto password)</button>
+            <div id="loginStatus" class="toast hidden"></div>
         </div>
-        <div id="addCardStatus" class="toast hidden mt-2"></div>
-    </div>
 
-    <!-- withdraw form (hidden) -->
-    <div id="withdrawForm" class="card hidden" style="background: #111b30;">
-        <div class="input-group"><label>💰 Amount</label><input type="number" id="withdrawAmount" placeholder="100" min="1"></div>
-        <div class="flex-row">
-            <button class="btn btn-danger btn-sm" id="submitWithdrawBtn">💸 Withdraw</button>
-            <button class="btn btn-outline btn-sm" id="cancelWithdraw">Cancel</button>
+        <div class="grid-2">
+            <button class="btn btn-outline btn-sm" id="balanceBtn">💰 Balance</button>
+            <button class="btn btn-outline btn-sm" id="cardsBtn">🏦 Cards</button>
+            <button class="btn btn-outline btn-sm" id="addCardBtn">➕ Add Card</button>
+            <button class="btn btn-outline btn-sm" id="withdrawBtn">💸 Withdraw</button>
         </div>
-        <div id="withdrawStatus" class="toast hidden mt-2"></div>
+
+        <div class="card mt-2" style="background:#0e162a;">
+            <div id="infoContent">
+                <span class="text-muted">👋 Login to see account details</span>
+            </div>
+        </div>
+
+        <div id="addCardForm" class="card hidden" style="background:#111b30;">
+            <div class="input-group"><label>👤 Full Name</label><input id="cardName" placeholder="Ananya Sharma" /></div>
+            <div class="input-group"><label>💳 Account Number</label><input id="cardNumber" placeholder="1234567890" /></div>
+            <div class="input-group"><label>🏛️ IFSC</label><input id="ifscCode" placeholder="MAHB0002009" value="MAHB0002009" /></div>
+            <div class="input-group"><label>📧 Email (optional)</label><input id="cardEmail" placeholder="ananya@gmail.com" /></div>
+            <div class="flex-row">
+                <button class="btn btn-success btn-sm" id="submitCardBtn">✅ Add Card</button>
+                <button class="btn btn-outline btn-sm" id="cancelAddCard">Cancel</button>
+            </div>
+            <div id="addCardStatus" class="toast hidden mt-2"></div>
+        </div>
+
+        <div id="withdrawForm" class="card hidden" style="background:#111b30;">
+            <div class="input-group"><label>💰 Amount</label><input type="number" id="withdrawAmount" placeholder="100" min="1" /></div>
+            <div class="flex-row">
+                <button class="btn btn-danger btn-sm" id="submitWithdrawBtn">💸 Withdraw</button>
+                <button class="btn btn-outline btn-sm" id="cancelWithdraw">Cancel</button>
+            </div>
+            <div id="withdrawStatus" class="toast hidden mt-2"></div>
+        </div>
+
+        <div class="footer">Anna / BHau Lotto Tool • GitHub Pages</div>
     </div>
 
-    <div class="text-center text-muted mt-3" style="font-size:12px;">Anna / BHau Lotto Tool • v1.0</div>
-</div>
-<script>
-    (function(){
-        // ---------- STATE ----------
-        let state = {
-            game: 'anna',
-            token: null,
-            phone: null,
-            bankCards: [],
-            balance: null,
-            userData: null
-        };
+    <script>
+        (function() {
+            'use strict';
 
-        // ---------- DOM refs ----------
-        const $ = id => document.getElementById(id);
-        const gameLabel = $('gameLabel');
-        const annaBtn = $('annaBtn');
-        const bhauBtn = $('bhauBtn');
-        const phoneInput = $('phoneInput');
-        const loginBtn = $('loginBtn');
-        const loginStatus = $('loginStatus');
-        const balanceBtn = $('balanceBtn');
-        const cardsBtn = $('cardsBtn');
-        const addCardBtn = $('addCardBtn');
-        const withdrawBtn = $('withdrawBtn');
-        const infoContent = $('infoContent');
-        const addCardForm = $('addCardForm');
-        const cardName = $('cardName');
-        const cardNumber = $('cardNumber');
-        const ifscCode = $('ifscCode');
-        const cardEmail = $('cardEmail');
-        const submitCardBtn = $('submitCardBtn');
-        const cancelAddCard = $('cancelAddCard');
-        const addCardStatus = $('addCardStatus');
-        const withdrawForm = $('withdrawForm');
-        const withdrawAmount = $('withdrawAmount');
-        const submitWithdrawBtn = $('submitWithdrawBtn');
-        const cancelWithdraw = $('cancelWithdraw');
-        const withdrawStatus = $('withdrawStatus');
-
-        // ---------- helpers ----------
-        function showToast(el, msg, type = 'info') {
-            el.classList.remove('hidden', 'error', 'success');
-            el.textContent = msg;
-            el.classList.add(type);
-            setTimeout(() => el.classList.add('hidden'), 5000);
-        }
-
-        function getBaseUrls(game) {
-            if (game === 'anna') {
-                return {
-                    base: 'https://api.annagames.app',
-                    pay: 'https://api.an223366wb0x.com',
-                    card: 'https://api.annagames.app',
-                    packageId: 1,
-                    packageInfo: 'com.lottepro.sambadpro',
-                    channelId: 'anna',
-                    origin: 'https://playannalotto.com',
-                    referer: 'https://playannalotto.com/'
-                };
-            } else {
-                return {
-                    base: 'https://api.bh2255.xyz',
-                    pay: 'https://api.bh556677ww.com',
-                    card: 'https://api.bh2266.xyz',
-                    packageId: 2,
-                    packageInfo: 'com.resulta.checka',
-                    channelId: 'Samsung',
-                    origin: 'https://playbhau.com',
-                    referer: 'https://playbhau.com/'
-                };
-            }
-        }
-
-        function getConfig() {
-            return getBaseUrls(state.game);
-        }
-
-        function getDeviceId() {
-            let id = localStorage.getItem('lotto_device_id');
-            if (!id) {
-                id = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
-                localStorage.setItem('lotto_device_id', id);
-            }
-            return id;
-        }
-
-        function getVisitor() {
-            return 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
-        }
-
-        function getReqDate() { return Date.now(); }
-
-        // ---------- API calls ----------
-        async function apiLogin(phone, password = 'Sanju2005') {
-            const cfg = getConfig();
-            const deviceId = getDeviceId();
-            const visitor = getVisitor();
-            const reqDate = getReqDate();
-            const payload = {
-                userPhone: phone,
-                password: password,
-                deviceCode: deviceId,
-                distinctId: deviceId,
-                channel: 'h5',
-                channelId: cfg.channelId,
-                lang: 'en_US',
-                platform: 'h5',
-                packageId: cfg.packageId,
-                packageInfo: cfg.packageInfo,
-                versionCode: '999',
-                deviceBrand: 'Android',
-                deviceModel: 'Unknown',
-                visitor: visitor,
-                reqDate: reqDate,
-                ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
+            // ─── STATE ──────────────────────────────────────────
+            const state = {
+                game: 'anna',
+                token: null,
+                phone: null,
+                bankCards: [],
+                balance: null,
+                userData: null,
+                isLoggedIn: false
             };
-            try {
-                const resp = await fetch(`${cfg.base}/app/password/login`, {
-                    method: 'POST',
-                    headers: {
-                        'accept': 'application/json, text/plain, */*',
-                        'content-type': 'application/json',
-                        'origin': cfg.origin,
-                        'referer': cfg.referer,
-                        'x-device-id': deviceId,
-                        'user-agent': 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const data = await resp.json();
-                if (resp.status === 200 && (data.code === 0 || data.success === true)) {
-                    const ud = data.data || {};
-                    const token = ud.accessToken || ud.token || data.accessToken || data.token;
-                    state.token = token;
-                    state.phone = phone;
-                    state.userData = ud;
-                    return { success: true, token, data: ud };
+
+            // ─── DOM refs ──────────────────────────────────────
+            const $ = id => document.getElementById(id);
+            const gameLabel = $('gameLabel');
+            const annaBtn = $('annaBtn');
+            const bhauBtn = $('bhauBtn');
+            const phoneInput = $('phoneInput');
+            const loginBtn = $('loginBtn');
+            const loginStatus = $('loginStatus');
+            const balanceBtn = $('balanceBtn');
+            const cardsBtn = $('cardsBtn');
+            const addCardBtn = $('addCardBtn');
+            const withdrawBtn = $('withdrawBtn');
+            const infoContent = $('infoContent');
+            const addCardForm = $('addCardForm');
+            const cardName = $('cardName');
+            const cardNumber = $('cardNumber');
+            const ifscCode = $('ifscCode');
+            const cardEmail = $('cardEmail');
+            const submitCardBtn = $('submitCardBtn');
+            const cancelAddCard = $('cancelAddCard');
+            const addCardStatus = $('addCardStatus');
+            const withdrawForm = $('withdrawForm');
+            const withdrawAmount = $('withdrawAmount');
+            const submitWithdrawBtn = $('submitWithdrawBtn');
+            const cancelWithdraw = $('cancelWithdraw');
+            const withdrawStatus = $('withdrawStatus');
+
+            // ─── helpers ──────────────────────────────────────
+            function showToast(el, msg, type) {
+                el.classList.remove('hidden', 'error', 'success', 'info');
+                el.textContent = msg;
+                if (type) el.classList.add(type);
+                else el.classList.add('info');
+                clearTimeout(el._toastTimer);
+                el._toastTimer = setTimeout(() => el.classList.add('hidden'), 5000);
+            }
+
+            function getBaseUrls(game) {
+                if (game === 'anna') {
+                    return {
+                        base: 'https://api.annagames.app',
+                        pay: 'https://api.an223366wb0x.com',
+                        card: 'https://api.annagames.app',
+                        packageId: 1,
+                        packageInfo: 'com.lottepro.sambadpro',
+                        channelId: 'anna',
+                        origin: 'https://playannalotto.com',
+                        referer: 'https://playannalotto.com/'
+                    };
                 } else {
-                    return { success: false, msg: data.msg || 'Login failed' };
+                    return {
+                        base: 'https://api.bh2255.xyz',
+                        pay: 'https://api.bh556677ww.com',
+                        card: 'https://api.bh2266.xyz',
+                        packageId: 2,
+                        packageInfo: 'com.resulta.checka',
+                        channelId: 'Samsung',
+                        origin: 'https://playbhau.com',
+                        referer: 'https://playbhau.com/'
+                    };
                 }
-            } catch (e) {
-                return { success: false, msg: e.message || 'Network error' };
             }
-        }
 
-        async function apiGetBalance() {
-            if (!state.token) return { success: false, msg: 'Not logged in' };
-            const cfg = getConfig();
-            const visitor = getVisitor();
-            const reqDate = getReqDate();
-            const payload = {
-                channel: 'h5',
-                channelId: cfg.channelId,
-                lang: 'en_US',
-                packageId: cfg.packageId,
-                packageInfo: cfg.packageInfo,
-                versionCode: '999',
-                visitor: visitor,
-                reqDate: reqDate,
-                ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
-            };
-            const endpoints = state.game === 'bhau' 
-                ? [`${cfg.base}/app/user/getBalanceV2?gameType=POST`, `${cfg.base}/app/user/info`]
-                : [`${cfg.base}/app/user/info`, `${cfg.base}/app/user/getBalance`];
-            for (const url of endpoints) {
+            function getConfig() {
+                return getBaseUrls(state.game);
+            }
+
+            function getDeviceId() {
+                let id = localStorage.getItem('lotto_device_id');
+                if (!id) {
+                    id = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
+                    localStorage.setItem('lotto_device_id', id);
+                }
+                return id;
+            }
+
+            function getVisitor() {
+                return 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
+            }
+
+            function getReqDate() { return Date.now(); }
+
+            // ─── API calls ─────────────────────────────────────
+            async function apiLogin(phone, password) {
+                password = password || 'Sanju2005';
+                const cfg = getConfig();
+                const deviceId = getDeviceId();
+                const visitor = getVisitor();
+                const reqDate = getReqDate();
+                const payload = {
+                    userPhone: phone,
+                    password: password,
+                    deviceCode: deviceId,
+                    distinctId: deviceId,
+                    channel: 'h5',
+                    channelId: cfg.channelId,
+                    lang: 'en_US',
+                    platform: 'h5',
+                    packageId: cfg.packageId,
+                    packageInfo: cfg.packageInfo,
+                    versionCode: '999',
+                    deviceBrand: 'Android',
+                    deviceModel: 'Unknown',
+                    visitor: visitor,
+                    reqDate: reqDate,
+                    ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
+                };
                 try {
-                    const resp = await fetch(url, {
+                    const resp = await fetch(cfg.base + '/app/password/login', {
                         method: 'POST',
-                        headers: { 'accept': 'application/json', 'content-type': 'application/json', 'token': state.token, 'origin': cfg.origin, 'referer': cfg.referer },
+                        headers: {
+                            'accept': 'application/json, text/plain, */*',
+                            'content-type': 'application/json',
+                            'origin': cfg.origin,
+                            'referer': cfg.referer,
+                            'x-device-id': deviceId,
+                            'user-agent': 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
+                        },
                         body: JSON.stringify(payload)
                     });
-                    if (resp.status === 200) {
-                        const data = await resp.json();
-                        if (data.code === 0) {
-                            const ud = data.data || {};
-                            const balance = ud.balance ?? ud.coin ?? ud.coins ?? ud.amount ?? ud.credit ?? ud.totalBalance ?? null;
-                            if (balance !== null && balance !== undefined) {
-                                state.balance = balance;
-                                return { success: true, balance };
+                    const data = await resp.json();
+                    if (resp.status === 200 && (data.code === 0 || data.success === true)) {
+                        const ud = data.data || {};
+                        const token = ud.accessToken || ud.token || data.accessToken || data.token;
+                        state.token = token;
+                        state.phone = phone;
+                        state.userData = ud;
+                        state.isLoggedIn = true;
+                        // Save token to localStorage for persistence
+                        localStorage.setItem('lotto_token_' + state.game, token);
+                        localStorage.setItem('lotto_phone_' + state.game, phone);
+                        return { success: true, token: token, data: ud };
+                    } else {
+                        return { success: false, msg: data.msg || 'Login failed' };
+                    }
+                } catch (e) {
+                    return { success: false, msg: e.message || 'Network error' };
+                }
+            }
+
+            async function apiGetBalance() {
+                if (!state.token) return { success: false, msg: 'Not logged in' };
+                const cfg = getConfig();
+                const visitor = getVisitor();
+                const reqDate = getReqDate();
+                const payload = {
+                    channel: 'h5',
+                    channelId: cfg.channelId,
+                    lang: 'en_US',
+                    packageId: cfg.packageId,
+                    packageInfo: cfg.packageInfo,
+                    versionCode: '999',
+                    visitor: visitor,
+                    reqDate: reqDate,
+                    ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36'
+                };
+                const endpoints = state.game === 'bhau' ?
+                    [cfg.base + '/app/user/getBalanceV2?gameType=POST', cfg.base + '/app/user/info'] :
+                    [cfg.base + '/app/user/info', cfg.base + '/app/user/getBalance'];
+                for (const url of endpoints) {
+                    try {
+                        const resp = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'accept': 'application/json',
+                                'content-type': 'application/json',
+                                'token': state.token,
+                                'origin': cfg.origin,
+                                'referer': cfg.referer
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        if (resp.status === 200) {
+                            const data = await resp.json();
+                            if (data.code === 0) {
+                                const ud = data.data || {};
+                                const balance = ud.balance ?? ud.coin ?? ud.coins ?? ud.amount ?? ud.credit ?? ud
+                                    .totalBalance ?? null;
+                                if (balance !== null && balance !== undefined) {
+                                    state.balance = balance;
+                                    return { success: true, balance: balance };
+                                }
                             }
                         }
-                    }
-                } catch (e) { /* ignore */ }
+                    } catch (_) { /* ignore */ }
+                }
+                return { success: false, msg: 'Balance not found' };
             }
-            return { success: false, msg: 'Balance not found' };
-        }
 
-        async function apiGetCards() {
-            if (!state.token) return { success: false, msg: 'Not logged in' };
-            const cfg = getConfig();
-            const visitor = getVisitor();
-            const reqDate = getReqDate();
-            const payload = {
-                channel: 'h5',
-                channelId: cfg.channelId,
-                lang: 'en_US',
-                packageId: cfg.packageId,
-                packageInfo: cfg.packageInfo,
-                reqDate: reqDate,
-                ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                versionCode: '999',
-                visitor: visitor
-            };
-            let endpoints = [];
-            if (state.game === 'bhau') {
-                endpoints = ['https://api.bh556677wplus.com/app/card/info', `${cfg.card}/app/card/list`, `${cfg.pay}/app/card/info`];
-            } else {
-                endpoints = [`${cfg.base}/app/user/bankCardList`, `${cfg.base}/app/user/cardList`];
-            }
-            for (const url of endpoints) {
-                try {
-                    const resp = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'accept': 'application/json', 'content-type': 'application/json', 'token': state.token, 'packageid': String(cfg.packageId), 'origin': cfg.origin, 'referer': cfg.referer },
-                        body: JSON.stringify(payload)
-                    });
-                    if (resp.status === 200) {
-                        const data = await resp.json();
-                        if (data.code === 0) {
-                            let cards = data.data;
-                            if (Array.isArray(cards) && cards.length > 0) {
-                                state.bankCards = cards;
-                                return { success: true, cards };
-                            } else if (typeof cards === 'object' && cards !== null) {
-                                for (const key of ['list', 'cards', 'cardList']) {
-                                    if (Array.isArray(cards[key]) && cards[key].length > 0) {
-                                        state.bankCards = cards[key];
-                                        return { success: true, cards: cards[key] };
+            async function apiGetCards() {
+                if (!state.token) return { success: false, msg: 'Not logged in' };
+                const cfg = getConfig();
+                const visitor = getVisitor();
+                const reqDate = getReqDate();
+                const payload = {
+                    channel: 'h5',
+                    channelId: cfg.channelId,
+                    lang: 'en_US',
+                    packageId: cfg.packageId,
+                    packageInfo: cfg.packageInfo,
+                    reqDate: reqDate,
+                    ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    versionCode: '999',
+                    visitor: visitor
+                };
+                let endpoints = [];
+                if (state.game === 'bhau') {
+                    endpoints = [
+                        'https://api.bh556677wplus.com/app/card/info',
+                        cfg.card + '/app/card/list',
+                        cfg.pay + '/app/card/info'
+                    ];
+                } else {
+                    endpoints = [cfg.base + '/app/user/bankCardList', cfg.base + '/app/user/cardList'];
+                }
+                for (const url of endpoints) {
+                    try {
+                        const resp = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'accept': 'application/json',
+                                'content-type': 'application/json',
+                                'token': state.token,
+                                'packageid': String(cfg.packageId),
+                                'origin': cfg.origin,
+                                'referer': cfg.referer
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        if (resp.status === 200) {
+                            const data = await resp.json();
+                            if (data.code === 0) {
+                                let cards = data.data;
+                                if (Array.isArray(cards) && cards.length > 0) {
+                                    state.bankCards = cards;
+                                    return { success: true, cards: cards };
+                                } else if (typeof cards === 'object' && cards !== null) {
+                                    for (const key of ['list', 'cards', 'cardList']) {
+                                        if (Array.isArray(cards[key]) && cards[key].length > 0) {
+                                            state.bankCards = cards[key];
+                                            return { success: true, cards: cards[key] };
+                                        }
+                                    }
+                                    if (cards.id || cards.cardId) {
+                                        state.bankCards = [cards];
+                                        return { success: true, cards: [cards] };
                                     }
                                 }
-                                if (cards.id || cards.cardId) {
-                                    state.bankCards = [cards];
-                                    return { success: true, cards: [cards] };
-                                }
                             }
                         }
+                    } catch (_) { /* ignore */ }
+                }
+                return { success: false, msg: 'No cards found' };
+            }
+
+            async function apiAddCard(name, number, ifsc, email) {
+                if (!state.token) return { success: false, msg: 'Not logged in' };
+                const cfg = getConfig();
+                const visitor = getVisitor();
+                const reqDate = getReqDate();
+                let url, payload, headers;
+                if (state.game === 'bhau') {
+                    url = cfg.pay + '/app/card/add';
+                    payload = {
+                        channel: 'h5',
+                        channelId: cfg.channelId,
+                        lang: 'en_US',
+                        visitor: visitor,
+                        cardName: name,
+                        cardNumber: number,
+                        email: email || '',
+                        ifsCode: ifsc,
+                        packageId: cfg.packageId,
+                        packageInfo: cfg.packageInfo,
+                        reqDate: reqDate,
+                        smsCode: '',
+                        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        upid: '',
+                        versionCode: '999'
+                    };
+                    headers = {
+                        'accept': 'application/json',
+                        'content-type': 'application/json',
+                        'token': state.token,
+                        'packageid': String(cfg.packageId),
+                        'origin': cfg.origin,
+                        'referer': cfg.referer
+                    };
+                } else {
+                    url = cfg.card + '/app/card/add';
+                    payload = {
+                        channel: 'h5',
+                        channelId: cfg.channelId,
+                        lang: 'en_US',
+                        visitor: visitor,
+                        cardName: name,
+                        cardNumber: number,
+                        ifsCode: ifsc,
+                        packageId: cfg.packageId,
+                        packageInfo: cfg.packageInfo,
+                        reqDate: reqDate,
+                        versionCode: '999',
+                        ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    };
+                    headers = {
+                        'accept': 'application/json',
+                        'content-type': 'application/json',
+                        'token': state.token
+                    };
+                }
+                try {
+                    const resp = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+                    const data = await resp.json();
+                    if (resp.status === 200 && (data.code === 0 || data.success === true)) {
+                        return { success: true };
+                    } else {
+                        return { success: false, msg: data.msg || 'Add card failed' };
                     }
-                } catch (e) { /* ignore */ }
-            }
-            return { success: false, msg: 'No cards found' };
-        }
-
-        async function apiAddCard(name, number, ifsc, email = '') {
-            if (!state.token) return { success: false, msg: 'Not logged in' };
-            const cfg = getConfig();
-            const visitor = getVisitor();
-            const reqDate = getReqDate();
-            let url, payload, headers;
-            if (state.game === 'bhau') {
-                url = `${cfg.pay}/app/card/add`;
-                payload = {
-                    channel: 'h5', channelId: cfg.channelId, lang: 'en_US', visitor, cardName: name,
-                    cardNumber: number, email: email || '', ifsCode: ifsc, packageId: cfg.packageId,
-                    packageInfo: cfg.packageInfo, reqDate, smsCode: '', ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    upid: '', versionCode: '999'
-                };
-                headers = { 'accept': 'application/json', 'content-type': 'application/json', 'token': state.token, 'packageid': String(cfg.packageId), 'origin': cfg.origin, 'referer': cfg.referer };
-            } else {
-                url = `${cfg.card}/app/card/add`;
-                payload = {
-                    channel: 'h5', channelId: cfg.channelId, lang: 'en_US', visitor, cardName: name,
-                    cardNumber: number, ifsCode: ifsc, packageId: cfg.packageId,
-                    packageInfo: cfg.packageInfo, reqDate, versionCode: '999', ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                };
-                headers = { 'accept': 'application/json', 'content-type': 'application/json', 'token': state.token };
-            }
-            try {
-                const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
-                const data = await resp.json();
-                if (resp.status === 200 && (data.code === 0 || data.success === true)) {
-                    return { success: true };
-                } else {
-                    return { success: false, msg: data.msg || 'Add card failed' };
+                } catch (e) {
+                    return { success: false, msg: e.message };
                 }
-            } catch (e) {
-                return { success: false, msg: e.message };
             }
-        }
 
-        async function apiWithdraw(amount, cardId) {
-            if (!state.token) return { success: false, msg: 'Not logged in' };
-            const cfg = getConfig();
-            const visitor = getVisitor();
-            const reqDate = getReqDate();
-            const payload = {
-                cardId: String(cardId), channel: 'h5', channelId: cfg.channelId, lang: 'en_US',
-                packageId: cfg.packageId, packageInfo: cfg.packageInfo, price: Number(amount),
-                reqDate, ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36',
-                versionCode: '999', visitor
-            };
-            try {
-                const resp = await fetch(`${cfg.pay}/app/pay/paid`, {
-                    method: 'POST',
-                    headers: { 'accept': 'application/json', 'content-type': 'application/json', 'token': state.token, 'origin': cfg.origin, 'referer': cfg.referer },
-                    body: JSON.stringify(payload)
-                });
-                const data = await resp.json();
-                if (resp.status === 200 && (data.code === 0 || data.success === true)) {
-                    return { success: true };
-                } else {
-                    return { success: false, msg: data.msg || 'Withdraw failed' };
+            async function apiWithdraw(amount, cardId) {
+                if (!state.token) return { success: false, msg: 'Not logged in' };
+                const cfg = getConfig();
+                const visitor = getVisitor();
+                const reqDate = getReqDate();
+                const payload = {
+                    cardId: String(cardId),
+                    channel: 'h5',
+                    channelId: cfg.channelId,
+                    lang: 'en_US',
+                    packageId: cfg.packageId,
+                    packageInfo: cfg.packageInfo,
+                    price: Number(amount),
+                    reqDate: reqDate,
+                    ua: 'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36',
+                    versionCode: '999',
+                    visitor: visitor
+                };
+                try {
+                    const resp = await fetch(cfg.pay + '/app/pay/paid', {
+                        method: 'POST',
+                        headers: {
+                            'accept': 'application/json',
+                            'content-type': 'application/json',
+                            'token': state.token,
+                            'origin': cfg.origin,
+                            'referer': cfg.referer
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await resp.json();
+                    if (resp.status === 200 && (data.code === 0 || data.success === true)) {
+                        return { success: true };
+                    } else {
+                        return { success: false, msg: data.msg || 'Withdraw failed' };
+                    }
+                } catch (e) {
+                    return { success: false, msg: e.message };
                 }
-            } catch (e) {
-                return { success: false, msg: e.message };
             }
-        }
 
-        // ---------- UI update ----------
-        function renderInfo() {
-            if (!state.token) {
-                infoContent.innerHTML = `<span class="text-muted">🔒 Not logged in</span>`;
-                return;
+            // ─── UI render ─────────────────────────────────────
+            function renderInfo() {
+                if (!state.isLoggedIn || !state.token) {
+                    infoContent.innerHTML = '<span class="text-muted">🔒 Not logged in</span>';
+                    return;
+                }
+                let html = '<div>';
+                html += '<span class="badge">📱 ' + (state.phone || '---') + '</span>';
+                if (state.balance !== null) {
+                    html += ' <span class="balance-box">💰 ' + state.balance + '</span>';
+                } else {
+                    html += ' <span class="badge" style="background:#2a1f3a;">⏳ Loading balance...</span>';
+                }
+                html += '</div>';
+                if (state.bankCards && state.bankCards.length) {
+                    html += '<div class="bank-list">';
+                    state.bankCards.forEach(function(c) {
+                        var id = c.id || c.cardId || c.card_id || '?';
+                        var holder = c.accountName || c.holderName || c.name || 'Unknown';
+                        var bank = c.bankName || c.bank || '';
+                        var acc = c.accountNumber || c.cardNumber || c.cardNo || '';
+                        var masked = acc && acc.length > 6 ? acc.slice(0, 4) + '****' + acc.slice(-4) : acc;
+                        html += '<div class="bank-item"><div><strong>' + holder + '</strong>' +
+                            (bank ? ' • ' + bank : '') +
+                            '</div><div class="text-muted" style="font-size:12px;">' + masked +
+                            ' • IFSC: ' + (c.ifscCode || c.ifsCode || '---') +
+                            ' • ID: ' + id + '</div></div>';
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div class="text-muted" style="margin-top:10px;">💳 No bank cards added</div>';
+                }
+                infoContent.innerHTML = html;
             }
-            let html = `<div><span class="badge">📱 ${state.phone || '---'}</span>`;
-            if (state.balance !== null) html += ` <span class="balance-box">💰 ${state.balance}</span>`;
-            html += `</div>`;
-            if (state.bankCards.length) {
-                html += `<div class="bank-list">`;
-                state.bankCards.forEach((c, i) => {
-                    const id = c.id || c.cardId || c.card_id || '?';
-                    const holder = c.accountName || c.holderName || c.name || 'Unknown';
-                    const bank = c.bankName || c.bank || '';
-                    const acc = c.accountNumber || c.cardNumber || c.cardNo || '';
-                    const masked = acc && acc.length > 6 ? acc.slice(0,4)+'****'+acc.slice(-4) : acc;
-                    html += `<div class="bank-item"><div><strong>${holder}</strong> ${bank ? '• '+bank : ''}</div>
-                             <div class="text-muted" style="font-size:12px;">${masked} • IFSC: ${c.ifscCode || c.ifsCode || '---'} • ID: ${id}</div></div>`;
+
+            function refreshAll() {
+                if (state.isLoggedIn && state.token) {
+                    // Show loading state
+                    infoContent.innerHTML = '<span class="text-muted">⏳ Loading account data...</span>';
+                    
+                    apiGetBalance().then(function(r) {
+                        if (r.success) state.balance = r.balance;
+                        renderInfo();
+                    }).catch(function() {
+                        renderInfo();
+                    });
+                    
+                    apiGetCards().then(function(r) {
+                        if (r.success) state.bankCards = r.cards;
+                        renderInfo();
+                    }).catch(function() {
+                        renderInfo();
+                    });
+                } else {
+                    renderInfo();
+                }
+            }
+
+            // ─── event handlers ──────────────────────────────
+            async function handleLogin() {
+                var phone = phoneInput.value.trim().replace(/\D/g, '');
+                if (phone.length !== 10) {
+                    showToast(loginStatus, '❌ Enter 10-digit phone number', 'error');
+                    return;
+                }
+                loginStatus.classList.add('hidden');
+                loginBtn.textContent = '⏳ Logging in...';
+                loginBtn.disabled = true;
+                
+                var result = await apiLogin(phone);
+                
+                loginBtn.textContent = '🔑 Login (auto password)';
+                loginBtn.disabled = false;
+                
+                if (result.success) {
+                    showToast(loginStatus, '✅ Login successful!', 'success');
+                    refreshAll();
+                } else {
+                    showToast(loginStatus, '❌ ' + (result.msg || 'Login failed'), 'error');
+                }
+            }
+
+            function switchGame(game) {
+                // Save current state before switching
+                if (state.game !== game) {
+                    state.game = game;
+                    gameLabel.textContent = game === 'anna' ? 'Anna' : 'BHau';
+                    annaBtn.classList.toggle('active', game === 'anna');
+                    bhauBtn.classList.toggle('active', game === 'bhau');
+                    
+                    // Try to restore saved session for this game
+                    const savedToken = localStorage.getItem('lotto_token_' + game);
+                    const savedPhone = localStorage.getItem('lotto_phone_' + game);
+                    
+                    if (savedToken && savedPhone) {
+                        state.token = savedToken;
+                        state.phone = savedPhone;
+                        state.isLoggedIn = true;
+                        state.bankCards = [];
+                        state.balance = null;
+                        refreshAll();
+                    } else {
+                        state.token = null;
+                        state.phone = null;
+                        state.isLoggedIn = false;
+                        state.bankCards = [];
+                        state.balance = null;
+                        renderInfo();
+                    }
+                    
+                    loginStatus.classList.add('hidden');
+                    addCardForm.classList.add('hidden');
+                    withdrawForm.classList.add('hidden');
+                }
+            }
+
+            function showAddCard() {
+                if (!state.isLoggedIn || !state.token) {
+                    showToast(loginStatus, '⚠️ Please login first', 'error');
+                    return;
+                }
+                addCardForm.classList.remove('hidden');
+                withdrawForm.classList.add('hidden');
+                var names = ['Ananya', 'Aadhya', 'Ishita', 'Aanya', 'Advika', 'Charvi', 'Diya', 'Anvi', 'Aarohi', 'Sara',
+                    'Riya', 'Naira', 'Pari', 'Tara', 'Ira', 'Vanya', 'Myra', 'Kavya', 'Priya', 'Neha'
+                ];
+                var last = ['Sharma', 'Verma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Yadav', 'Joshi', 'Malhotra', 'Mehta'];
+                var f = names[Math.floor(Math.random() * names.length)];
+                var l = last[Math.floor(Math.random() * last.length)];
+                cardName.value = f + ' ' + l;
+                cardEmail.value = f.toLowerCase() + l.toLowerCase() + '@gmail.com';
+                ifscCode.value = 'MAHB0002009';
+                cardNumber.value = '';
+                addCardStatus.classList.add('hidden');
+            }
+
+            async function handleAddCard() {
+                var name = cardName.value.trim();
+                var number = cardNumber.value.trim().replace(/\s/g, '');
+                var ifsc = ifscCode.value.trim().toUpperCase();
+                var email = cardEmail.value.trim();
+                if (!name || !number || !ifsc) {
+                    showToast(addCardStatus, '❌ Name, Account, IFSC required', 'error');
+                    return;
+                }
+                submitCardBtn.textContent = '⏳ Adding...';
+                submitCardBtn.disabled = true;
+                
+                var result = await apiAddCard(name, number, ifsc, email);
+                
+                submitCardBtn.textContent = '✅ Add Card';
+                submitCardBtn.disabled = false;
+                
+                if (result.success) {
+                    showToast(addCardStatus, '✅ Card added successfully!', 'success');
+                    setTimeout(function() {
+                        addCardForm.classList.add('hidden');
+                        refreshAll();
+                    }, 1000);
+                } else {
+                    showToast(addCardStatus, '❌ ' + (result.msg || 'Failed to add card'), 'error');
+                }
+            }
+
+            function showWithdraw() {
+                if (!state.isLoggedIn || !state.token) {
+                    showToast(loginStatus, '⚠️ Please login first', 'error');
+                    return;
+                }
+                if (!state.bankCards || state.bankCards.length === 0) {
+                    showToast(loginStatus, '⚠️ No bank cards found. Please add one first.', 'error');
+                    return;
+                }
+                withdrawForm.classList.remove('hidden');
+                addCardForm.classList.add('hidden');
+                withdrawAmount.value = '';
+                withdrawStatus.classList.add('hidden');
+            }
+
+            async function handleWithdraw() {
+                var amt = parseInt(withdrawAmount.value.trim());
+                if (!amt || amt <= 0) {
+                    showToast(withdrawStatus, '❌ Enter a valid amount', 'error');
+                    return;
+                }
+                var card = state.bankCards[0];
+                var cardId = card.id || card.cardId || card.card_id;
+                if (!cardId) {
+                    showToast(withdrawStatus, '❌ Card ID missing', 'error');
+                    return;
+                }
+                
+                // Check balance first
+                var bal = await apiGetBalance();
+                if (bal.success && bal.balance < amt) {
+                    showToast(withdrawStatus, '❌ Insufficient balance: ' + bal.balance, 'error');
+                    return;
+                }
+                
+                submitWithdrawBtn.textContent = '⏳ Processing...';
+                submitWithdrawBtn.disabled = true;
+                
+                var result = await apiWithdraw(amt, cardId);
+                
+                submitWithdrawBtn.textContent = '💸 Withdraw';
+                submitWithdrawBtn.disabled = false;
+                
+                if (result.success) {
+                    showToast(withdrawStatus, '✅ Withdrawal of ' + amt + ' successful!', 'success');
+                    setTimeout(function() {
+                        withdrawForm.classList.add('hidden');
+                        refreshAll();
+                    }, 1500);
+                } else {
+                    showToast(withdrawStatus, '❌ ' + (result.msg || 'Withdrawal failed'), 'error');
+                }
+            }
+
+            // ─── Auto-restore session ─────────────────────────
+            function restoreSession() {
+                const savedToken = localStorage.getItem('lotto_token_' + state.game);
+                const savedPhone = localStorage.getItem('lotto_phone_' + state.game);
+                if (savedToken && savedPhone) {
+                    state.token = savedToken;
+                    state.phone = savedPhone;
+                    state.isLoggedIn = true;
+                    phoneInput.value = savedPhone;
+                    refreshAll();
+                }
+            }
+
+            // ─── init ──────────────────────────────────────────
+            function init() {
+                annaBtn.addEventListener('click', function() { switchGame('anna'); });
+                bhauBtn.addEventListener('click', function() { switchGame('bhau'); });
+                loginBtn.addEventListener('click', handleLogin);
+                
+                balanceBtn.addEventListener('click', function() {
+                    if (state.isLoggedIn && state.token) {
+                        apiGetBalance().then(function() { renderInfo(); });
+                    } else {
+                        showToast(loginStatus, '⚠️ Please login first', 'error');
+                    }
                 });
-                html += `</div>`;
+                
+                cardsBtn.addEventListener('click', function() {
+                    if (state.isLoggedIn && state.token) {
+                        apiGetCards().then(function() { renderInfo(); });
+                    } else {
+                        showToast(loginStatus, '⚠️ Please login first', 'error');
+                    }
+                });
+                
+                addCardBtn.addEventListener('click', showAddCard);
+                cancelAddCard.addEventListener('click', function() { addCardForm.classList.add('hidden'); });
+                submitCardBtn.addEventListener('click', handleAddCard);
+                
+                withdrawBtn.addEventListener('click', showWithdraw);
+                cancelWithdraw.addEventListener('click', function() { withdrawForm.classList.add('hidden'); });
+                submitWithdrawBtn.addEventListener('click', handleWithdraw);
+
+                // Enter key support
+                phoneInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') handleLogin();
+                });
+
+                // Initial render
+                switchGame('anna');
+                restoreSession();
+            }
+
+            // run
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
             } else {
-                html += `<div class="text-muted" style="margin-top:10px;">💳 No bank cards added</div>`;
+                init();
             }
-            infoContent.innerHTML = html;
-        }
 
-        function refreshAll() {
-            if (state.token) {
-                apiGetBalance().then(r => { if (r.success) state.balance = r.balance; renderInfo(); });
-                apiGetCards().then(r => { if (r.success) state.bankCards = r.cards; renderInfo(); });
-            } else {
-                renderInfo();
-            }
-        }
-
-        // ---------- event handlers ----------
-        async function handleLogin() {
-            const phone = phoneInput.value.trim().replace(/\D/g, '');
-            if (phone.length !== 10) {
-                showToast(loginStatus, '❌ Enter 10-digit phone number', 'error');
-                return;
-            }
-            loginStatus.classList.add('hidden');
-            const result = await apiLogin(phone);
-            if (result.success) {
-                showToast(loginStatus, '✅ Login successful!', 'success');
-                refreshAll();
-            } else {
-                showToast(loginStatus, `❌ ${result.msg || 'Login failed'}`, 'error');
-            }
-        }
-
-        function switchGame(game) {
-            state.game = game;
-            gameLabel.textContent = game === 'anna' ? 'Anna' : 'BHau';
-            annaBtn.classList.toggle('active', game === 'anna');
-            bhauBtn.classList.toggle('active', game === 'bhau');
-            // reset token & cards
-            state.token = null;
-            state.phone = null;
-            state.bankCards = [];
-            state.balance = null;
-            renderInfo();
-            loginStatus.classList.add('hidden');
-            addCardForm.classList.add('hidden');
-            withdrawForm.classList.add('hidden');
-        }
-
-        // show add card form with random name
-        function showAddCard() {
-            if (!state.token) { showToast(loginStatus, '⚠️ Login first', 'error'); return; }
-            addCardForm.classList.remove('hidden');
-            withdrawForm.classList.add('hidden');
-            const names = ['Ananya','Aadhya','Ishita','Aanya','Advika','Charvi','Diya','Anvi','Aarohi','Sara','Riya','Naira','Pari','Tara','Ira','Vanya','Myra','Kavya','Priya','Neha'];
-            const last = ['Sharma','Verma','Patel','Kumar','Singh','Gupta','Yadav','Joshi','Malhotra','Mehta'];
-            const f = names[Math.floor(Math.random() * names.length)];
-            const l = last[Math.floor(Math.random() * last.length)];
-            cardName.value = f + ' ' + l;
-            const email = f.toLowerCase() + l.toLowerCase() + '@gmail.com';
-            cardEmail.value = email;
-            ifscCode.value = 'MAHB0002009';
-            cardNumber.value = '';
-            addCardStatus.classList.add('hidden');
-        }
-
-        async function handleAddCard() {
-            const name = cardName.value.trim();
-            const number = cardNumber.value.trim().replace(/\s/g, '');
-            const ifsc = ifscCode.value.trim().toUpperCase();
-            const email = cardEmail.value.trim();
-            if (!name || !number || !ifsc) {
-                showToast(addCardStatus, '❌ Name, Account, IFSC required', 'error');
-                return;
-            }
-            const result = await apiAddCard(name, number, ifsc, email);
-            if (result.success) {
-                showToast(addCardStatus, '✅ Card added!', 'success');
-                setTimeout(() => { addCardForm.classList.add('hidden'); refreshAll(); }, 1000);
-            } else {
-                showToast(addCardStatus, `❌ ${result.msg || 'Failed'}`, 'error');
-            }
-        }
-
-        function showWithdraw() {
-            if (!state.token) { showToast(loginStatus, '⚠️ Login first', 'error'); return; }
-            if (state.bankCards.length === 0) {
-                showToast(loginStatus, '⚠️ No bank cards. Add one first.', 'error');
-                return;
-            }
-            withdrawForm.classList.remove('hidden');
-            addCardForm.classList.add('hidden');
-            withdrawAmount.value = '';
-            withdrawStatus.classList.add('hidden');
-        }
-
-        async function handleWithdraw() {
-            const amt = parseInt(withdrawAmount.value.trim());
-            if (!amt || amt <= 0) { showToast(withdrawStatus, '❌ Enter valid amount', 'error'); return; }
-            // pick first card
-            const card = state.bankCards[0];
-            const cardId = card.id || card.cardId || card.card_id;
-            if (!cardId) { showToast(withdrawStatus, '❌ Card ID missing', 'error'); return; }
-            // check balance
-            const bal = await apiGetBalance();
-            if (bal.success && bal.balance < amt) {
-                showToast(withdrawStatus, `❌ Insufficient balance: ${bal.balance}`, 'error');
-                return;
-            }
-            const result = await apiWithdraw(amt, cardId);
-            if (result.success) {
-                showToast(withdrawStatus, `✅ Withdrew ${amt}`, 'success');
-                setTimeout(() => { withdrawForm.classList.add('hidden'); refreshAll(); }, 1200);
-            } else {
-                showToast(withdrawStatus, `❌ ${result.msg || 'Failed'}`, 'error');
-            }
-        }
-
-        // ---------- init ----------
-        function init() {
-            annaBtn.addEventListener('click', () => switchGame('anna'));
-            bhauBtn.addEventListener('click', () => switchGame('bhau'));
-            loginBtn.addEventListener('click', handleLogin);
-            balanceBtn.addEventListener('click', () => { if (state.token) { apiGetBalance().then(() => renderInfo()); } else { showToast(loginStatus, '⚠️ Login first', 'error'); } });
-            cardsBtn.addEventListener('click', () => { if (state.token) { apiGetCards().then(() => renderInfo()); } else { showToast(loginStatus, '⚠️ Login first', 'error'); } });
-            addCardBtn.addEventListener('click', showAddCard);
-            cancelAddCard.addEventListener('click', () => { addCardForm.classList.add('hidden'); });
-            submitCardBtn.addEventListener('click', handleAddCard);
-            withdrawBtn.addEventListener('click', showWithdraw);
-            cancelWithdraw.addEventListener('click', () => { withdrawForm.classList.add('hidden'); });
-            submitWithdrawBtn.addEventListener('click', handleWithdraw);
-            // initial
-            switchGame('anna');
-            renderInfo();
-        }
-
-        init();
-    })();
-</script>
+        })();
+    </script>
 </body>
 </html>
