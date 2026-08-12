@@ -622,6 +622,50 @@
       margin-bottom: 3px;
       letter-spacing: 0.3px;
     }
+
+    /* ── INPUT ROW WITH CAMERA ── */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+      will-change: border, box-shadow;
+    }
+    .input-row input:focus {
+      border-color: rgba(52, 211, 153, 0.08);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.005), inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .btn-camera {
+      padding: 10px 14px;
+      background: rgba(139, 92, 246, 0.10);
+      border: 1px solid rgba(139, 92, 246, 0.08);
+      border-radius: 16px;
+      color: #a5b4fc;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      will-change: transform;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-camera:active { transform: scale(0.94); }
+    .btn-camera:hover { background: rgba(139, 92, 246, 0.15); }
+    .btn-camera:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
     .input-group input, .input-group select {
       width: 100%;
       padding: 10px 14px;
@@ -884,6 +928,37 @@
   const logoutConfirmOverlay = $('logoutConfirmOverlay');
   const logoutYesBtn = $('logoutYesBtn');
   const logoutNoBtn = $('logoutNoBtn');
+
+  // ─── OCR FUNCTION ──────────────────────────────────────────────────────────
+  async function performOCR(imageDataUrl) {
+    // Use OCR.space free API (no API key required for free tier)
+    const apiUrl = 'https://api.ocr.space/parse/image';
+    const formData = new FormData();
+    formData.append('base64Image', imageDataUrl.split(',')[1]);
+    formData.append('language', 'eng');
+    formData.append('isOverlayRequired', 'false');
+    formData.append('detectOrientation', 'true');
+    formData.append('scale', 'true');
+    formData.append('OCREngine', '2');
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.json();
+      if (result.OCRExitCode === 1 && result.ParsedResults && result.ParsedResults.length > 0) {
+        const text = result.ParsedResults[0].ParsedText || '';
+        // Clean: extract only digits
+        const digits = text.replace(/\D/g, '');
+        return digits;
+      }
+      return null;
+    } catch (error) {
+      console.error('OCR Error:', error);
+      return null;
+    }
+  }
 
   // ─── TOAST ──────────────────────────────────────────────────────────────────
   function showToast(msg, type='error'){
@@ -1276,7 +1351,7 @@
     });
   }
 
-  // ─── ADD CARD ─────────────────────────────────────────────────────────────
+  // ─── ADD CARD (with Camera OCR) ──────────────────────────────────────────
   async function renderAddCard(){
     S.currentPanel='addcard';
     try{
@@ -1310,12 +1385,66 @@
       ${cardHtml}
       <div style="border-top:1px solid rgba(255,255,255,0.02);padding-top:12px;">
         <div class="input-group"><label>👤 Account Holder</label><input id="cardNameInput" value="${autoName}"></div>
-        <div class="input-group"><label>💳 Account Number</label><input id="cardNumberInput" placeholder="1234567890"></div>
+        <div class="input-group">
+          <label>💳 Account Number</label>
+          <div class="input-row">
+            <input id="cardNumberInput" placeholder="Enter account number">
+            <button class="btn-camera" id="cameraBtn" title="Scan account number from image">📷</button>
+          </div>
+        </div>
         <div class="input-group"><label>🏛️ IFSC</label><input id="ifscInput" value="MAHB0002009"></div>
         <div class="input-group"><label>📧 Email</label><input id="cardEmailInput" value="${randEmail(autoName)}"></div>
         <button class="btn-sm btn-card-add btn-block" id="addCardSubmitBtn">➕ Add Card</button>
         <div id="addCardResult" class="mt-10"></div>
       </div></div>`);
+
+    // ─── CAMERA OCR LOGIC ──────────────────────────────────────────────────
+    const cameraBtn = document.getElementById('cameraBtn');
+    const cardNumberInput = document.getElementById('cardNumberInput');
+
+    cameraBtn.addEventListener('click', function() {
+      // Create a hidden file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.capture = 'environment'; // Use back camera on mobile
+      
+      fileInput.addEventListener('change', async function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        cameraBtn.disabled = true;
+        cameraBtn.textContent = '⏳';
+        showToast('Scanning image for text...', 'warning');
+        
+        try {
+          // Convert image to base64
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            const imageDataUrl = e.target.result;
+            const extractedDigits = await performOCR(imageDataUrl);
+            
+            if (extractedDigits && extractedDigits.length > 0) {
+              cardNumberInput.value = extractedDigits;
+              showToast(`✅ Extracted ${extractedDigits.length} digits!`, 'success');
+            } else {
+              showToast('No digits found in image. Try again.', 'error');
+            }
+            cameraBtn.disabled = false;
+            cameraBtn.textContent = '📷';
+          };
+          reader.readAsDataURL(file);
+        } catch (error) {
+          showToast('OCR failed: ' + error.message, 'error');
+          cameraBtn.disabled = false;
+          cameraBtn.textContent = '📷';
+        }
+      });
+      
+      fileInput.click();
+    });
+
+    // ─── DELETE CARD ──────────────────────────────────────────────────────
     document.querySelectorAll('.delete-card-btn').forEach(b=>{
       b.addEventListener('click',async function(){
         if(!confirm('Delete card?')) return;
@@ -1330,6 +1459,8 @@
         }catch(_){}
       });
     });
+
+    // ─── ADD CARD SUBMIT ──────────────────────────────────────────────────
     document.getElementById('addCardSubmitBtn').addEventListener('click',async function(){
       const name=document.getElementById('cardNameInput').value.trim();
       const number=document.getElementById('cardNumberInput').value.trim().replace(/\s/g,'');
