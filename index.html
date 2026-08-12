@@ -892,85 +892,112 @@
   const logoutYesBtn = $('logoutYesBtn');
   const logoutNoBtn = $('logoutNoBtn');
 
-  // ─── ENHANCED OCR WITH FALLBACK ──────────────────────────────────────────
-  async function performOCR(imageDataUrl) {
-    const preprocessedImage = await preprocessImage(imageDataUrl);
-    let result = await tryOCRSpace(preprocessedImage);
-    if (result && result.length >= 4) return result;
-    try {
-      result = await tryTesseract(preprocessedImage);
-      if (result && result.length >= 4) return result;
-    } catch (e) { console.log('Tesseract fallback failed:', e); }
-    return null;
+  // ─── GOOGLE LENS / CAMERA LAUNCHER ────────────────────────────────────────
+  function openGoogleLensOrCamera() {
+    // Check if we're on Android
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    
+    if (isAndroid) {
+      // Try to open Google Lens via intent
+      try {
+        // Google Lens intent for Android
+        const lensIntent = 'intent://scan/#Intent;scheme=googleapp;package=com.google.android.googlequicksearchbox;action=com.google.android.googlequicksearchbox.GOOGLE_LENS;end';
+        window.location.href = lensIntent;
+        
+        // If Lens doesn't open, fallback to camera after a timeout
+        setTimeout(() => {
+          // Check if we're still on the page (Lens didn't open)
+          const fallbackInput = document.createElement('input');
+          fallbackInput.type = 'file';
+          fallbackInput.accept = 'image/*';
+          fallbackInput.capture = 'environment';
+          fallbackInput.style.display = 'none';
+          document.body.appendChild(fallbackInput);
+          fallbackInput.click();
+          document.body.removeChild(fallbackInput);
+          showToast('Google Lens not available. Opening camera...', 'warning');
+        }, 1500);
+        
+        return;
+      } catch (e) {
+        // Fallback to camera
+        openCamera();
+      }
+    } else if (isIOS) {
+      // iOS: use native camera or Live Text (iOS 16+)
+      // We'll use the file input with camera capture
+      openCamera();
+    } else {
+      // Desktop: open file picker
+      openFilePicker();
+    }
   }
 
-  function preprocessImage(imageDataUrl) {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        const contrast = 1.6;
-        const brightness = 30;
-        for (let i = 0; i < data.length; i += 4) {
-          data[i] = Math.min(255, Math.max(0, ((data[i] - 128) * contrast) + 128 + brightness));
-          data[i+1] = Math.min(255, Math.max(0, ((data[i+1] - 128) * contrast) + 128 + brightness));
-          data[i+2] = Math.min(255, Math.max(0, ((data[i+2] - 128) * contrast) + 128 + brightness));
-        }
-        ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
-      };
-      img.src = imageDataUrl;
+  function openCamera() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    
+    input.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        showToast('📸 Photo captured! You can now use Google Lens from your gallery to copy the number.', 'success');
+        // Show a helpful message with instructions
+        setTimeout(() => {
+          const userWantsManual = confirm(
+            '📸 Photo saved to gallery.\n\n' +
+            'To copy the account number:\n' +
+            '1. Open Google Lens from your gallery\n' +
+            '2. Select the photo you just took\n' +
+            '3. Copy the numbers and paste them here\n\n' +
+            'OR tap "OK" to enter the number manually now.'
+          );
+          if (userWantsManual) {
+            const manualNumber = prompt('Please type the account number manually:');
+            if (manualNumber && manualNumber.trim().length > 0) {
+              const inputField = document.getElementById('cardNumberInput');
+              if (inputField) {
+                inputField.value = manualNumber.trim().replace(/\s/g, '');
+                showToast('✅ Number entered manually.', 'success');
+              }
+            }
+          }
+        }, 1000);
+      }
+      document.body.removeChild(input);
     });
+    
+    input.click();
   }
 
-  async function tryOCRSpace(imageDataUrl) {
-    const apiUrl = 'https://api.ocr.space/parse/image';
-    const formData = new FormData();
-    formData.append('base64Image', imageDataUrl.split(',')[1]);
-    formData.append('language', 'eng');
-    formData.append('isOverlayRequired', 'false');
-    formData.append('detectOrientation', 'true');
-    formData.append('scale', 'true');
-    formData.append('OCREngine', '2');
-    try {
-      const response = await fetch(apiUrl, { method: 'POST', body: formData });
-      const result = await response.json();
-      if (result.OCRExitCode === 1 && result.ParsedResults && result.ParsedResults.length > 0) {
-        const text = result.ParsedResults[0].ParsedText || '';
-        const numbers = text.match(/\d+/g) || [];
-        if (numbers.length > 0) {
-          numbers.sort((a, b) => b.length - a.length);
-          return numbers[0];
+  function openFilePicker() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    document.body.appendChild(input);
+    
+    input.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        showToast('📸 Image selected. You can copy the number from it.', 'success');
+        const manualNumber = prompt('Please type the account number you see in the image:');
+        if (manualNumber && manualNumber.trim().length > 0) {
+          const inputField = document.getElementById('cardNumberInput');
+          if (inputField) {
+            inputField.value = manualNumber.trim().replace(/\s/g, '');
+            showToast('✅ Number entered.', 'success');
+          }
         }
       }
-      return null;
-    } catch (error) { return null; }
-  }
-
-  async function tryTesseract(imageDataUrl) {
-    if (typeof Tesseract === 'undefined') {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-    const result = await Tesseract.recognize(imageDataUrl, 'eng', { logger: m => console.log(m) });
-    const text = result.data.text || '';
-    const numbers = text.match(/\d+/g) || [];
-    if (numbers.length > 0) {
-      numbers.sort((a, b) => b.length - a.length);
-      return numbers[0];
-    }
-    return null;
+      document.body.removeChild(input);
+    });
+    
+    input.click();
   }
 
   // ─── TOAST ──────────────────────────────────────────────────────────────────
@@ -1364,7 +1391,7 @@
     });
   }
 
-  // ─── ADD CARD (with Camera OCR) ──────────────────────────────────────────
+  // ─── ADD CARD (with Google Lens / Camera) ────────────────────────────────
   async function renderAddCard(){
     S.currentPanel='addcard';
     try{
@@ -1402,7 +1429,7 @@
           <label>💳 Account Number</label>
           <div class="input-row">
             <input id="cardNumberInput" placeholder="Enter account number">
-            <button class="btn-camera" id="cameraBtn" title="Scan account number from image">📷</button>
+            <button class="btn-camera" id="cameraBtn" title="Open Google Lens / Camera to scan number">📷</button>
           </div>
         </div>
         <div class="input-group"><label>🏛️ IFSC</label><input id="ifscInput" value="MAHB0002009"></div>
@@ -1411,57 +1438,10 @@
         <div id="addCardResult" class="mt-10"></div>
       </div></div>`);
 
-    // ─── CAMERA OCR LOGIC ──────────────────────────────────────────────────
+    // ─── CAMERA / GOOGLE LENS BUTTON ──────────────────────────────────────
     const cameraBtn = document.getElementById('cameraBtn');
-    const cardNumberInput = document.getElementById('cardNumberInput');
-
     cameraBtn.addEventListener('click', function() {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.capture = 'environment';
-      
-      fileInput.addEventListener('change', async function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        cameraBtn.disabled = true;
-        cameraBtn.textContent = '⏳';
-        showToast('Scanning image for numbers...', 'warning');
-        
-        try {
-          const reader = new FileReader();
-          reader.onload = async function(e) {
-            const imageDataUrl = e.target.result;
-            const extractedDigits = await performOCR(imageDataUrl);
-            
-            if (extractedDigits && extractedDigits.length >= 4) {
-              cardNumberInput.value = extractedDigits;
-              showToast(`✅ Extracted ${extractedDigits.length} digits!`, 'success');
-            } else {
-              const manualNumber = prompt(
-                'OCR could not read the number clearly.\nPlease type the account number manually:',
-                ''
-              );
-              if (manualNumber && manualNumber.trim().length > 0) {
-                cardNumberInput.value = manualNumber.trim().replace(/\s/g, '');
-                showToast('✅ Number entered manually.', 'success');
-              } else {
-                showToast('No number entered. Please type it manually.', 'warning');
-              }
-            }
-            cameraBtn.disabled = false;
-            cameraBtn.textContent = '📷';
-          };
-          reader.readAsDataURL(file);
-        } catch (error) {
-          showToast('OCR failed: ' + error.message, 'error');
-          cameraBtn.disabled = false;
-          cameraBtn.textContent = '📷';
-        }
-      });
-      
-      fileInput.click();
+      openGoogleLensOrCamera();
     });
 
     // ─── DELETE CARD ──────────────────────────────────────────────────────
