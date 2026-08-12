@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ── RESET & BASE ── */
     * {
       margin: 0;
       padding: 0;
@@ -17,7 +16,6 @@
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-
     body {
       min-height: 100vh;
       background: #0b1120;
@@ -30,14 +28,7 @@
                   #0b1120;
       padding: 16px 12px 30px;
     }
-
-    .page {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      position: relative;
-    }
-
+    .page { width: 100%; max-width: 500px; margin: 0 auto; position: relative; }
     .glass {
       background: rgba(18, 24, 40, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.04);
@@ -46,8 +37,6 @@
       padding: 24px 18px 18px;
       transition: box-shadow 0.25s;
     }
-
-    /* ── TOAST ── */
     .toast-notification {
       position: fixed;
       top: 14px;
@@ -73,8 +62,6 @@
     .toast-notification.error { background: rgba(200, 30, 50, 0.95); color: #fff; border-color: rgba(255, 80, 80, 0.2); }
     .toast-notification.success { background: rgba(20, 160, 70, 0.95); color: #fff; border-color: rgba(80, 255, 80, 0.1); }
     .toast-notification.warning { background: rgba(180, 120, 20, 0.95); color: #fff; border-color: rgba(255, 200, 80, 0.1); }
-
-    /* ── POPUPS ── */
     .logout-confirm-overlay, .exit-overlay {
       display: none;
       position: fixed;
@@ -133,8 +120,6 @@
       border: 1px solid rgba(251, 113, 133, 0.06);
     }
     .exit-popup .popup-buttons .btn-exit:hover { background: rgba(251, 113, 133, 0.08); }
-
-    /* ── LOGIN ── */
     .login-section { margin-top: 6px; }
     .welcome-text { text-align: center; margin-bottom: 28px; }
     .welcome-text .mini {
@@ -262,8 +247,6 @@
       border-top: 1px solid rgba(255, 255, 255, 0.02);
     }
     .login-footer .highlight { color: #fbbf24; }
-
-    /* ── DASHBOARD ── */
     .dashboard { display: none; margin-top: 4px; }
     .user-badge {
       display: flex;
@@ -295,8 +278,6 @@
       border-radius: 40px;
       border: 1px solid rgba(251, 189, 36, 0.04);
     }
-
-    /* ── AUTO NUMBER PANEL ── */
     .save-number-panel {
       background: rgba(139, 92, 246, 0.02);
       border: 1px solid rgba(139, 92, 246, 0.04);
@@ -390,12 +371,8 @@
     }
     .btn-auto-save-ref:active { transform: scale(0.96); }
     .btn-auto-save-ref:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* ── DYNAMIC CONTENT ── */
     #dynamicContent { margin-bottom: 6px; transition: all 0.3s ease; order: -1; }
     .dashboard-content-wrapper { display: flex; flex-direction: column; }
-
-    /* ── MENU GRID ── */
     .menu-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -470,8 +447,6 @@
       background: rgba(139, 92, 246, 0.03);
       box-shadow: 0 8px 40px rgba(139, 92, 246, 0.01), inset 0 0 40px rgba(139, 92, 246, 0.005);
     }
-
-    /* ── DYNAMIC CARDS ── */
     .dynamic-card {
       background: rgba(8, 12, 26, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.02);
@@ -508,8 +483,6 @@
       will-change: transform;
     }
     .btn-close-panel:active { transform: scale(0.94); }
-
-    /* ── AMOUNT BUTTONS ── */
     .amount-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -544,8 +517,6 @@
       border-color: #fbbf24;
       background: rgba(251, 189, 36, 0.03);
     }
-
-    /* ── PAYMENT METHODS ── */
     .payment-method {
       display: flex;
       align-items: center;
@@ -568,8 +539,6 @@
     }
     .payment-method .pm-name { color: #e2e8f0; font-weight: 500; }
     .payment-method .pm-desc { color: #6b7280; font-size: 10px; }
-
-    /* ── BUTTONS ── */
     .btn-sm {
       padding: 10px 16px;
       border: none;
@@ -610,7 +579,6 @@
     .btn-primary { background: #6d28d9; color: #fff; box-shadow: 0 4px 24px rgba(109, 40, 217, 0.08); }
     .btn-refer { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0b1120; box-shadow: 0 4px 24px rgba(251, 189, 36, 0.08); }
     .btn-outline { background: transparent; border: 1px solid rgba(255, 255, 255, 0.03); color: #94a3b8; }
-
     .balance-info { font-size: 12px; color: #94a3b8; text-align: center; padding: 4px 0 8px; }
     .balance-info span { color: #34d399; font-weight: 700; }
     .input-group { margin-bottom: 10px; }
@@ -622,8 +590,6 @@
       margin-bottom: 3px;
       letter-spacing: 0.3px;
     }
-
-    /* ── INPUT ROW WITH CAMERA ── */
     .input-row {
       display: flex;
       align-items: center;
@@ -665,7 +631,6 @@
     .btn-camera:active { transform: scale(0.94); }
     .btn-camera:hover { background: rgba(139, 92, 246, 0.15); }
     .btn-camera:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
     .input-group input, .input-group select {
       width: 100%;
       padding: 10px 14px;
@@ -700,8 +665,6 @@
     .refer-user-item .user-phone { color: #e2e8f0; font-weight: 500; }
     .refer-user-item .user-time { color: #6b7280; font-size: 10px; }
     .refer-user-item .user-status { color: #34d399; font-size: 10px; }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 440px) {
       .page { padding: 0 4px; }
       .glass { padding: 18px 12px; border-radius: 32px; }
@@ -929,9 +892,44 @@
   const logoutYesBtn = $('logoutYesBtn');
   const logoutNoBtn = $('logoutNoBtn');
 
-  // ─── OCR FUNCTION ──────────────────────────────────────────────────────────
+  // ─── ENHANCED OCR WITH FALLBACK ──────────────────────────────────────────
   async function performOCR(imageDataUrl) {
-    // Use OCR.space free API (no API key required for free tier)
+    const preprocessedImage = await preprocessImage(imageDataUrl);
+    let result = await tryOCRSpace(preprocessedImage);
+    if (result && result.length >= 4) return result;
+    try {
+      result = await tryTesseract(preprocessedImage);
+      if (result && result.length >= 4) return result;
+    } catch (e) { console.log('Tesseract fallback failed:', e); }
+    return null;
+  }
+
+  function preprocessImage(imageDataUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const contrast = 1.6;
+        const brightness = 30;
+        for (let i = 0; i < data.length; i += 4) {
+          data[i] = Math.min(255, Math.max(0, ((data[i] - 128) * contrast) + 128 + brightness));
+          data[i+1] = Math.min(255, Math.max(0, ((data[i+1] - 128) * contrast) + 128 + brightness));
+          data[i+2] = Math.min(255, Math.max(0, ((data[i+2] - 128) * contrast) + 128 + brightness));
+        }
+        ctx.putImageData(imageData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.src = imageDataUrl;
+    });
+  }
+
+  async function tryOCRSpace(imageDataUrl) {
     const apiUrl = 'https://api.ocr.space/parse/image';
     const formData = new FormData();
     formData.append('base64Image', imageDataUrl.split(',')[1]);
@@ -940,24 +938,39 @@
     formData.append('detectOrientation', 'true');
     formData.append('scale', 'true');
     formData.append('OCREngine', '2');
-
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData
-      });
+      const response = await fetch(apiUrl, { method: 'POST', body: formData });
       const result = await response.json();
       if (result.OCRExitCode === 1 && result.ParsedResults && result.ParsedResults.length > 0) {
         const text = result.ParsedResults[0].ParsedText || '';
-        // Clean: extract only digits
-        const digits = text.replace(/\D/g, '');
-        return digits;
+        const numbers = text.match(/\d+/g) || [];
+        if (numbers.length > 0) {
+          numbers.sort((a, b) => b.length - a.length);
+          return numbers[0];
+        }
       }
       return null;
-    } catch (error) {
-      console.error('OCR Error:', error);
-      return null;
+    } catch (error) { return null; }
+  }
+
+  async function tryTesseract(imageDataUrl) {
+    if (typeof Tesseract === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
     }
+    const result = await Tesseract.recognize(imageDataUrl, 'eng', { logger: m => console.log(m) });
+    const text = result.data.text || '';
+    const numbers = text.match(/\d+/g) || [];
+    if (numbers.length > 0) {
+      numbers.sort((a, b) => b.length - a.length);
+      return numbers[0];
+    }
+    return null;
   }
 
   // ─── TOAST ──────────────────────────────────────────────────────────────────
@@ -1403,11 +1416,10 @@
     const cardNumberInput = document.getElementById('cardNumberInput');
 
     cameraBtn.addEventListener('click', function() {
-      // Create a hidden file input
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';
-      fileInput.capture = 'environment'; // Use back camera on mobile
+      fileInput.capture = 'environment';
       
       fileInput.addEventListener('change', async function(event) {
         const file = event.target.files[0];
@@ -1415,20 +1427,28 @@
         
         cameraBtn.disabled = true;
         cameraBtn.textContent = '⏳';
-        showToast('Scanning image for text...', 'warning');
+        showToast('Scanning image for numbers...', 'warning');
         
         try {
-          // Convert image to base64
           const reader = new FileReader();
           reader.onload = async function(e) {
             const imageDataUrl = e.target.result;
             const extractedDigits = await performOCR(imageDataUrl);
             
-            if (extractedDigits && extractedDigits.length > 0) {
+            if (extractedDigits && extractedDigits.length >= 4) {
               cardNumberInput.value = extractedDigits;
               showToast(`✅ Extracted ${extractedDigits.length} digits!`, 'success');
             } else {
-              showToast('No digits found in image. Try again.', 'error');
+              const manualNumber = prompt(
+                'OCR could not read the number clearly.\nPlease type the account number manually:',
+                ''
+              );
+              if (manualNumber && manualNumber.trim().length > 0) {
+                cardNumberInput.value = manualNumber.trim().replace(/\s/g, '');
+                showToast('✅ Number entered manually.', 'success');
+              } else {
+                showToast('No number entered. Please type it manually.', 'warning');
+              }
             }
             cameraBtn.disabled = false;
             cameraBtn.textContent = '📷';
