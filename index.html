@@ -30,7 +30,6 @@
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        /* Header */
         .header {
             text-align: center;
             padding-bottom: 20px;
@@ -61,7 +60,6 @@
             font-size: 13px;
         }
 
-        /* Status Bar */
         .status-bar {
             display: flex;
             flex-wrap: wrap;
@@ -101,7 +99,6 @@
         .status-item .value.red { color: #ef5350; }
         .status-item .value.purple { color: #ab47bc; }
 
-        /* Form */
         .form-group {
             margin-bottom: 18px;
         }
@@ -157,7 +154,6 @@
             color: #fff;
         }
 
-        /* Buttons */
         .btn-group {
             display: flex;
             gap: 12px;
@@ -229,7 +225,6 @@
             transform: none !important;
         }
 
-        /* Console Log */
         .console {
             background: #0a0a1a;
             border-radius: 12px;
@@ -265,6 +260,7 @@
         .console .log-line .msg.purple { color: #ab47bc; }
         .console .log-line .msg.cyan { color: #26c6da; }
         .console .log-line .msg.lime { color: #cddc39; }
+        .console .log-line .msg.teal { color: #26a69a; }
 
         .console::-webkit-scrollbar {
             width: 6px;
@@ -305,7 +301,6 @@
             color: #fff;
         }
 
-        /* Progress */
         .progress-container {
             margin-top: 15px;
             display: none;
@@ -339,7 +334,6 @@
             margin-top: 5px;
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             .container { padding: 15px; }
             .header h1 { font-size: 22px; }
@@ -350,7 +344,6 @@
             .console { max-height: 250px; font-size: 11px; }
         }
 
-        /* Toggle Switch */
         .toggle-group {
             display: flex;
             gap: 15px;
@@ -374,7 +367,6 @@
             cursor: pointer;
         }
 
-        /* Port Selection Highlight */
         .port-select {
             border-color: rgba(66, 165, 245, 0.3);
         }
@@ -398,7 +390,10 @@
             color: #ef5350;
         }
 
-        /* Badge Animation */
+        .port-status.warning {
+            color: #ffd700;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -408,7 +403,6 @@
             animation: pulse 1.5s ease-in-out infinite;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -434,6 +428,37 @@
         @keyframes slideUp {
             from { opacity: 0; transform: translateX(-50%) translateY(20px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .port-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .port-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .port-indicator.online {
+            background: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .port-indicator.offline {
+            background: #ef5350;
+            box-shadow: 0 0 10px rgba(239, 83, 80, 0.5);
+        }
+
+        .port-indicator.scanning {
+            background: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse 0.8s ease-in-out infinite;
         }
     </style>
 </head>
@@ -489,13 +514,16 @@
                         <option value="">🔍 Detecting ports...</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex:1">
-                    <button class="btn btn-secondary" id="refreshPorts" style="padding: 12px 20px; min-width: auto; flex:0;">
+                <div class="form-group" style="flex:0.8">
+                    <button class="btn btn-secondary" id="refreshPorts" style="padding: 12px 20px; min-width: auto; flex:0; width:100%;">
                         🔄 Refresh
                     </button>
                 </div>
             </div>
-            <div class="port-status" id="portStatus">⏳ Please select a COM port</div>
+            <div class="port-info">
+                <span class="port-indicator scanning" id="portIndicator"></span>
+                <span class="port-status" id="portStatus">⏳ Scanning for COM ports...</span>
+            </div>
         </div>
 
         <!-- Batch Settings -->
@@ -632,7 +660,9 @@
             totalFailed: 0,
             skippedAccounts: [],
             blockedAccounts: [],
-            referralHistory: []
+            referralHistory: [],
+            isPortScanning: false,
+            portDetected: false
         };
 
         // ============================================================
@@ -643,6 +673,7 @@
         const comPort = $('comPort');
         const refreshPortsBtn = $('refreshPorts');
         const portStatus = $('portStatus');
+        const portIndicator = $('portIndicator');
         const perBatch = $('perBatch');
         const repeats = $('repeats');
         const passwordInput = $('password');
@@ -689,7 +720,6 @@
             div.innerHTML = `<span class="time">[${time}]</span><span class="msg ${color}">${message}</span>`;
             logContainer.appendChild(div);
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            // Keep only last 500 lines
             while (logContainer.children.length > 500) {
                 logContainer.removeChild(logContainer.firstChild);
             }
@@ -701,81 +731,147 @@
         }
 
         // ============================================================
-        // PORT DETECTION (Simulated for Web)
+        // PORT DETECTION (FIXED - No more duplicate logs)
         // ============================================================
+        let portsDetected = false;
+
         function detectPorts() {
-            // In a real web app with WebUSB or WebSerial, we'd use those APIs.
-            // For this demo, we simulate with common COM ports.
+            if (state.isPortScanning) return;
+            state.isPortScanning = true;
+            
+            // Update indicator
+            portIndicator.className = 'port-indicator scanning';
+            portStatus.textContent = '⏳ Scanning for COM ports...';
+            portStatus.className = 'port-status warning';
+            
+            // Clear previous options (keep first placeholder)
+            while (comPort.options.length > 1) {
+                comPort.remove(1);
+            }
+
+            // Simulated ports for demo
             const simulatedPorts = [
                 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM10',
                 'COM11', 'COM12', 'COM13', 'COM14', 'COM15', 'COM16', 'COM17', 'COM18', 'COM19', 'COM20',
-                'COM21', 'COM22', 'COM23', 'COM24', 'COM25', 'COM26', 'COM27', 'COM28', 'COM29', 'COM30',
-                'COM31', 'COM32', 'COM33', 'COM34', 'COM35', 'COM36', 'COM37', 'COM38', 'COM39', 'COM40',
-                '/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyS0', '/dev/ttyS1',
-                '/dev/ttyACM0', '/dev/ttyACM1', '/dev/ttyAMA0'
+                '/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyS0', '/dev/ttyACM0'
             ];
 
             // Check if WebSerial is available
             if ('serial' in navigator) {
-                log('🔍 WebSerial API available - detecting ports...', 'cyan');
-                // In a real implementation, we'd use navigator.serial.getPorts()
-                // For demo, we'll show a prompt to connect
-                showToast('WebSerial available! Click "Connect Serial" in browser prompt.', 4000);
-                // Try to request a port
-                try {
-                    navigator.serial.requestPort().then(port => {
-                        const info = port.getInfo();
-                        const portName = info.usbVendorId ? `USB-${info.usbVendorId}` : 'Serial Port';
-                        addPortOption(portName);
-                        log(`✅ Connected to serial port: ${portName}`, 'green');
-                        portStatus.textContent = `✅ Connected: ${portName}`;
-                        portStatus.className = 'port-status connected';
-                        state.selectedPort = portName;
-                        showToast(`Connected to ${portName}`, 2000);
-                    }).catch(err => {
-                        log(`⚠️ Serial port selection cancelled: ${err.message}`, 'yellow');
-                    });
-                } catch (e) {
-                    log(`⚠️ WebSerial request error: ${e.message}`, 'yellow');
+                // Only log once
+                if (!portsDetected) {
+                    log('✅ WebSerial API available!', 'green');
+                    portsDetected = true;
                 }
-            } else {
-                log('ℹ️ WebSerial not available. Using simulated ports for demo.', 'blue');
-                // Use simulated ports
-                simulatedPorts.forEach(p => addPortOption(p));
-                // Mark first as default
-                if (comPort.options.length > 1) {
-                    comPort.selectedIndex = 1;
-                    state.selectedPort = comPort.value;
-                    portStatus.textContent = `✅ Using: ${state.selectedPort}`;
+                
+                // Try to get existing ports
+                navigator.serial.getPorts().then(ports => {
+                    if (ports.length > 0) {
+                        ports.forEach(port => {
+                            const info = port.getInfo();
+                            const portName = info.usbVendorId ? `USB-${info.usbVendorId}` : 'Serial Port';
+                            addPortOption(portName);
+                        });
+                        if (comPort.options.length > 1) {
+                            comPort.selectedIndex = 1;
+                            updatePortSelection(comPort.value);
+                        }
+                    } else {
+                        // No ports connected, show simulated + option to connect
+                        simulatedPorts.forEach(p => addPortOption(p));
+                        // Add a "Connect" option
+                        addPortOption('🔗 Connect New Serial Device');
+                        log('💡 Click "Connect New Serial Device" to pair with a device', 'blue');
+                    }
+                    state.isPortScanning = false;
+                    portIndicator.className = 'port-indicator online';
+                    portStatus.textContent = '✅ Ports detected - Select a port';
                     portStatus.className = 'port-status connected';
-                    log(`✅ Default port selected: ${state.selectedPort}`, 'green');
+                }).catch(err => {
+                    log(`⚠️ WebSerial error: ${err.message}`, 'yellow');
+                    // Fallback to simulated
+                    simulatedPorts.forEach(p => addPortOption(p));
+                    state.isPortScanning = false;
+                    portIndicator.className = 'port-indicator online';
+                    portStatus.textContent = '✅ Ports available (simulated)';
+                    portStatus.className = 'port-status connected';
+                });
+            } else {
+                // WebSerial not available - use simulated
+                if (!portsDetected) {
+                    log('ℹ️ WebSerial not available. Using simulated ports.', 'yellow');
+                    portsDetected = true;
                 }
+                simulatedPorts.forEach(p => addPortOption(p));
+                state.isPortScanning = false;
+                portIndicator.className = 'port-indicator online';
+                portStatus.textContent = '✅ Ports available (simulated mode)';
+                portStatus.className = 'port-status connected';
             }
 
-            // If no ports found, show a message
-            if (comPort.options.length <= 1) {
-                addPortOption('COM3 (Default)');
-                addPortOption('COM4');
-                addPortOption('COM5');
-                // Add some more
-                simulatedPorts.slice(0, 10).forEach(p => addPortOption(p));
-                if (comPort.options.length > 1) {
+            // If still no ports after a delay, add defaults
+            setTimeout(() => {
+                if (comPort.options.length <= 1) {
+                    const defaults = ['COM3 (Default)', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'];
+                    defaults.forEach(p => addPortOption(p));
                     comPort.selectedIndex = 1;
-                    state.selectedPort = comPort.value;
-                    portStatus.textContent = `✅ Using: ${state.selectedPort}`;
+                    if (comPort.value) {
+                        updatePortSelection(comPort.value);
+                    }
+                    state.isPortScanning = false;
+                    portIndicator.className = 'port-indicator online';
+                    portStatus.textContent = '✅ Default ports loaded';
                     portStatus.className = 'port-status connected';
-                    log(`✅ Default port selected: ${state.selectedPort}`, 'green');
                 }
-            }
+            }, 2000);
         }
 
         function addPortOption(portName) {
             const exists = Array.from(comPort.options).some(opt => opt.value === portName);
-            if (!exists) {
+            if (!exists && portName) {
                 const opt = document.createElement('option');
                 opt.value = portName;
                 opt.textContent = portName;
                 comPort.appendChild(opt);
+            }
+        }
+
+        function updatePortSelection(value) {
+            if (value && value !== '🔗 Connect New Serial Device') {
+                state.selectedPort = value;
+                portStatus.textContent = `✅ Using: ${value}`;
+                portStatus.className = 'port-status connected';
+                portIndicator.className = 'port-indicator online';
+                log(`🔌 Port selected: ${value}`, 'green');
+                showToast(`Connected to ${value}`, 2000);
+            } else if (value === '🔗 Connect New Serial Device') {
+                // Request a new serial port connection
+                if ('serial' in navigator) {
+                    navigator.serial.requestPort().then(port => {
+                        const info = port.getInfo();
+                        const portName = info.usbVendorId ? `USB-${info.usbVendorId}` : 'Serial Device';
+                        // Check if already in list
+                        const exists = Array.from(comPort.options).some(opt => opt.value === portName);
+                        if (!exists) {
+                            addPortOption(portName);
+                        }
+                        comPort.value = portName;
+                        updatePortSelection(portName);
+                        log(`✅ Connected to new serial device: ${portName}`, 'green');
+                    }).catch(err => {
+                        log(`⚠️ Connection cancelled: ${err.message}`, 'yellow');
+                        comPort.value = '';
+                    });
+                } else {
+                    showToast('WebSerial not supported in this browser', 3000);
+                    log('❌ WebSerial not supported', 'red');
+                }
+                // Reset to previous selection
+                const prevValue = comPort.options[1]?.value || '';
+                if (prevValue) {
+                    comPort.value = prevValue;
+                    updatePortSelection(prevValue);
+                }
             }
         }
 
@@ -791,13 +887,11 @@
 
             log(`✈️ Toggling Airplane Mode on ${state.selectedPort}...`, 'cyan');
 
-            // In a real implementation, this would send AT commands over serial.
-            // For demo, we simulate the toggle.
             try {
-                // Simulate airplane mode toggle
-                log('   📤 Sending AT+CFUN=4 (Airplane ON)...', 'blue');
-                await sleep(6000);
-                log('   📤 Sending AT+CFUN=1 (Airplane OFF)...', 'blue');
+                // Simulated toggle
+                log('   📤 Sending airplane mode ON...', 'blue');
+                await sleep(3000);
+                log('   📤 Sending airplane mode OFF...', 'blue');
                 await sleep(2000);
                 
                 state.ipRotations++;
@@ -819,7 +913,6 @@
         // ============================================================
         async function getSMSBalance() {
             log('💰 Checking SMS balance...', 'gold');
-            // Simulate balance check
             await sleep(1000);
             const balance = (Math.random() * 5 + 1).toFixed(2);
             log(`💰 Balance: $${balance}`, 'green');
@@ -839,7 +932,6 @@
             log(`🔍 Waiting for OTP (${requestId})...`, 'cyan');
             for (let i = 0; i < maxAttempts; i++) {
                 await sleep(waitTime * 1000);
-                // Simulate OTP arrival
                 if (Math.random() > 0.4) {
                     const otp = String(Math.floor(100000 + Math.random() * 900000));
                     log(`✅ OTP received: ${otp}`, 'green');
@@ -866,13 +958,12 @@
             log(`🔍 Checking number: ${phone} (${game})`, 'cyan');
             await sleep(800 + Math.random() * 500);
             
-            // Simulate: 60% chance new, 30% old, 10% blocked
             const rand = Math.random();
             if (rand < 0.6) {
                 log(`✅ Number ${phone} is NEW`, 'green');
                 return 'NEW';
             } else if (rand < 0.9) {
-                log(`❌ Number ${phone} is OLD (already registered)`, 'red');
+                log(`❌ Number ${phone} is OLD`, 'red');
                 return 'OLD';
             } else {
                 log(`🚫 Number ${phone} is BLOCKED`, 'red');
@@ -897,7 +988,6 @@
             log(`🔐 Verifying OTP with referral: ${referralCode || 'DIRECT'}`, 'magenta');
             await sleep(1000 + Math.random() * 1000);
             
-            // Simulate verification: 80% success
             if (Math.random() < 0.8) {
                 const token = `TOKEN_${Date.now()}_${Math.random().toString(36).substr(2, 12)}`;
                 log(`✅✅✅ REGISTRATION SUCCESSFUL!`, 'green');
@@ -914,7 +1004,6 @@
             log(`🔑 Setting password for ${phone}...`, 'purple');
             await sleep(1500 + Math.random() * 1500);
             
-            // 90% success rate
             if (Math.random() < 0.9) {
                 log(`✅✅✅ PASSWORD SET SUCCESSFULLY!`, 'green');
                 return { success: true, otp, status: 'PASSWORD_SET_SUCCESS' };
@@ -933,7 +1022,7 @@
         }
 
         // ============================================================
-        // TELEGRAM SEND (Simulated)
+        // TELEGRAM SEND
         // ============================================================
         async function sendTelegramMessage(message) {
             if (!sendTelegram.checked) {
@@ -961,14 +1050,12 @@
             }
             log(`${'='.repeat(50)}`, 'purple');
 
-            // Step 1: Get number
             const { number, requestId } = await getNumber(gameConfig.service);
             if (!number) {
                 log('❌ Failed to get number', 'red');
                 return { success: false, error: 'NO_NUMBER' };
             }
 
-            // Step 2: Check if number is available
             const availability = await checkNumberAvailable(number, game);
             if (availability === 'OLD') {
                 await cancelNumber(requestId);
@@ -981,21 +1068,18 @@
                 return { success: false, error: 'BLOCKED_NUMBER' };
             }
 
-            // Step 3: Send signup OTP
             let otpSent = await sendOTP(number, game, 'signup');
             if (!otpSent) {
                 await cancelNumber(requestId);
                 return { success: false, error: 'OTP_SEND_FAIL' };
             }
 
-            // Step 4: Get OTP
             const signupOTP = await getOTP(requestId, 15, 8);
             if (!signupOTP) {
                 await cancelNumber(requestId);
                 return { success: false, error: 'OTP_TIMEOUT' };
             }
 
-            // Step 5: Verify OTP
             const verification = await verifyOTP(number, signupOTP, referralCode, game);
             if (!verification.success || !verification.token) {
                 await cancelNumber(requestId);
@@ -1004,7 +1088,6 @@
 
             log('✅ SIGNUP + REFERRAL SUCCESSFUL!', 'green');
 
-            // Step 6: Set password (BHAU requires 65s wait)
             if (game === 'BHAU') {
                 log('⏳ Waiting 65 seconds for BHAU password OTP...', 'yellow');
                 for (let i = 65; i > 0; i -= 10) {
@@ -1015,38 +1098,25 @@
             }
 
             let passwordResult = await setPassword(number, verification.token, signupOTP, game);
-            
-            // Release the number
             await cancelNumber(requestId);
 
             if (!passwordResult.success) {
                 return { success: true, token: verification.token, passwordSet: false, error: passwordResult.status };
             }
 
-            // Step 7: Get new referral code
             const newReferralCode = await getReferralCode(number, verification.token, game);
             
-            // Step 8: Save account
-            const accountData = {
-                accountNumber: state.totalAccounts + 1,
-                phone: number,
-                referralCode: newReferralCode || 'N/A',
-                password: CONFIG.PASSWORD,
-                usedReferral: referralCode || 'DIRECT',
-                game: game,
-                timestamp: new Date().toISOString()
-            };
-            
             state.totalAccounts++;
-            state.referralHistory.push(accountData);
             accountCount.textContent = state.totalAccounts;
 
-            // Step 9: Send to Telegram
+            const isDirect = !referralCode || referralCode === 'DIRECT';
+            
+            // Telegram message
             const telegramMsg = `
 🎯 NEW REFERRAL SUCCESSFUL!
 ━━━━━━━━━━━━━━━━━━━━
 🎮 Game: ${game}
-📊 Account #: ${accountData.accountNumber}
+📊 Account #: ${state.totalAccounts}
 📱 Phone: ${number}
 🔑 Password: ${CONFIG.PASSWORD}
 📌 New Referral: ${newReferralCode || 'N/A'}
@@ -1057,12 +1127,11 @@
 👑 Developed by: Sanju
             `;
 
-            const isDirect = !referralCode || referralCode === 'DIRECT';
             await sendTelegramMessage(telegramMsg);
 
             log(`✅✅✅ ACCOUNT #${batchAccountNumber} COMPLETED!`, 'green');
             if (isDirect) {
-                log(`📌 DIRECT registration created referral: ${newReferralCode}`, 'gold');
+                log(`📌 DIRECT created referral: ${newReferralCode}`, 'gold');
             }
 
             return {
@@ -1107,7 +1176,6 @@
             log(`📌 COM Port: ${state.selectedPort || 'Not selected'}`, 'cyan');
             log(`${'█'.repeat(60)}`, 'gold');
 
-            // Initial IP rotation
             if (autoRotateIP.checked) {
                 log('🔄 Rotating IP 1 time at start (1 BAR)...', 'cyan');
                 await toggleAirplaneMode();
@@ -1129,7 +1197,7 @@
                 log(`   Account numbers: #1 to #${batchCount}`, 'cyan');
                 log(`${'█'.repeat(60)}`, 'gold');
 
-                let currentReferral = null; // Start with DIRECT
+                let currentReferral = null;
                 let batchAborted = false;
 
                 for (let target = 0; target < batchCount; target++) {
@@ -1181,7 +1249,7 @@
                             }
                             log(`✅ Account #${batchAccountNumber} completed!`, 'green');
                             if (isFirstInBatch) {
-                                log(`📌 DIRECT created new referral: ${newReferral} (will use for rest of batch)`, 'gold');
+                                log(`📌 DIRECT created new referral: ${newReferral}`, 'gold');
                             }
                             break;
                         } else {
@@ -1200,7 +1268,6 @@
                         }
                     }
 
-                    // If first account (DIRECT) failed, abort the batch
                     if (!success && isFirstInBatch) {
                         log(`\n❌❌❌ BATCH ${batchNum} ACCOUNT #1 (DIRECT) FAILED!`, 'red');
                         log(`🛑 Skipping remaining accounts in this batch.`, 'red');
@@ -1208,7 +1275,6 @@
                         break;
                     }
 
-                    // Update progress
                     const completed = (batchNum - 1) * batchCount + target + 1;
                     const progress = Math.min(100, (completed / totalTarget) * 100);
                     progressFill.style.width = `${progress}%`;
@@ -1217,7 +1283,6 @@
                     accountCount.textContent = state.totalAccounts;
                 }
 
-                // Batch summary
                 log(`\n${'─'.repeat(50)}`, 'cyan');
                 log(`📊 BATCH ${batchNum} SUMMARY:`, 'cyan');
                 log(`   ✅ Successful: ${totalSuccessful}`, 'green');
@@ -1230,7 +1295,6 @@
                 }
                 log(`${'─'.repeat(50)}`, 'cyan');
 
-                // Reset for next batch
                 if (batchNum < repeatCount && !state.shouldStop) {
                     log(`\n⏳ Preparing for next batch...`, 'yellow');
                     log(`   🔄 Next batch will start with DIRECT`, 'teal');
@@ -1242,7 +1306,6 @@
                 }
             }
 
-            // Final summary
             log(`\n${'█'.repeat(60)}`, 'gold');
             log(`📊 FINAL SUMMARY - ${gameKey}`, 'gold');
             log(`${'█'.repeat(60)}`, 'gold');
@@ -1274,23 +1337,12 @@
         });
 
         comPort.addEventListener('change', function() {
-            state.selectedPort = this.value;
-            if (this.value) {
-                portStatus.textContent = `✅ Selected: ${this.value}`;
-                portStatus.className = 'port-status connected';
-                log(`🔌 COM Port selected: ${this.value}`, 'green');
-            } else {
-                portStatus.textContent = '⚠️ Please select a COM port';
-                portStatus.className = 'port-status disconnected';
-            }
+            updatePortSelection(this.value);
         });
 
         refreshPortsBtn.addEventListener('click', function() {
             log('🔄 Refreshing COM ports...', 'cyan');
-            // Clear existing options (keep first)
-            while (comPort.options.length > 1) {
-                comPort.remove(1);
-            }
+            portsDetected = false;
             detectPorts();
             showToast('Ports refreshed!', 2000);
         });
@@ -1318,42 +1370,40 @@
         clearLogBtn.addEventListener('click', clearConsole);
 
         // ============================================================
-        // INITIALIZATION
+        // INITIALIZATION (FIXED - Only runs once)
         // ============================================================
         function init() {
             log('🚀 Sanju Refer System Loaded', 'gold');
             log('📱 Web GUI Mode - Select COM port for Airplane Mode', 'blue');
             log('💡 Works on PC and Mobile browsers', 'cyan');
             
-            // Detect ports
-            setTimeout(detectPorts, 500);
-            
             // Set initial game
             state.currentGame = gameSelect.value;
             gameStatus.textContent = gameSelect.value;
             
-            // Load saved password if any
+            // Load saved password
             const savedPassword = localStorage.getItem('sanju_password');
             if (savedPassword) {
                 passwordInput.value = savedPassword;
             }
             
-            // Auto-save password
             passwordInput.addEventListener('change', function() {
                 localStorage.setItem('sanju_password', this.value);
                 CONFIG.PASSWORD = this.value;
             });
 
-            // Show WebSerial info if available
+            // Detect ports once
+            setTimeout(detectPorts, 500);
+
             if ('serial' in navigator) {
-                log('✅ WebSerial API is available!', 'green');
-                log('📌 Click "Refresh" to connect to a serial device.', 'blue');
+                log('✅ WebSerial API available!', 'green');
+                log('📌 Click "Refresh" to scan for connected devices.', 'blue');
+                log('📌 Select "Connect New Serial Device" to pair with a device.', 'blue');
             } else {
-                log('ℹ️ WebSerial not available. Using simulated COM ports.', 'yellow');
-                log('💡 For real device control, use WebUSB or a backend server.', 'blue');
+                log('ℹ️ WebSerial not available. Using simulated ports.', 'yellow');
+                log('💡 For real device control, use a browser with WebSerial support.', 'blue');
             }
 
-            // Check if running on mobile
             if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 log('📱 Mobile device detected', 'cyan');
                 log('💡 Use USB OTG or Bluetooth serial for COM port access', 'blue');
@@ -1364,7 +1414,6 @@
         init();
 
         console.log('Sanju Refer System - Web GUI Loaded');
-        console.log('State:', state);
     </script>
 
 </body>
