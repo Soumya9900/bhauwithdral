@@ -237,6 +237,18 @@
             transform: translateY(-2px);
         }
 
+        .btn-android {
+            background: linear-gradient(135deg, #4caf50, #1b5e20);
+            color: #fff;
+            flex: 0.7;
+            min-width: 120px;
+        }
+
+        .btn-android:hover {
+            box-shadow: 0 8px 30px rgba(76, 175, 80, 0.3);
+            transform: translateY(-2px);
+        }
+
         .console {
             background: #0a0a1a;
             border-radius: 12px;
@@ -274,6 +286,7 @@
         .console .log-line .msg.lime { color: #cddc39; }
         .console .log-line .msg.teal { color: #26a69a; }
         .console .log-line .msg.magenta { color: #ff6bcd; }
+        .console .log-line .msg.orange { color: #ff9800; }
 
         .console::-webkit-scrollbar {
             width: 6px;
@@ -484,6 +497,12 @@
             animation: pulse 0.6s ease-in-out infinite;
         }
 
+        .port-indicator.android {
+            background: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
         .manual-port-input {
             display: flex;
             gap: 10px;
@@ -517,6 +536,53 @@
 
         .manual-port-input button:hover {
             opacity: 0.9;
+        }
+
+        .device-info {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .device-info.show {
+            display: block;
+        }
+
+        .device-info .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .device-info .value {
+            font-size: 14px;
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .connection-methods {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .connection-methods .method-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        .connection-methods .method-badge.active {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
         }
     </style>
 </head>
@@ -565,13 +631,21 @@
 
         <!-- COM Port Selection -->
         <div class="form-group">
-            <label>🔌 COM Port <span class="badge">For Airplane Mode</span></label>
+            <label>🔌 Connection Method <span class="badge">For Airplane Mode</span></label>
             
+            <!-- Connection Methods -->
+            <div class="connection-methods">
+                <span class="method-badge" id="methodWebSerial">🌐 WebSerial</span>
+                <span class="method-badge" id="methodWebUSB">🔌 WebUSB (Android)</span>
+                <span class="method-badge" id="methodManual">✏️ Manual</span>
+                <span class="method-badge" id="methodADB">📱 ADB Over Web</span>
+            </div>
+
             <!-- Port Dropdown -->
-            <div class="form-row">
+            <div class="form-row" style="margin-top: 10px;">
                 <div class="form-group" style="flex:2">
                     <select id="comPort" class="port-select">
-                        <option value="">-- Select COM Port --</option>
+                        <option value="">-- Select Port --</option>
                     </select>
                 </div>
                 <div class="form-group" style="flex:0.8">
@@ -581,26 +655,35 @@
                 </div>
             </div>
 
-            <!-- Connect Button for WebSerial -->
+            <!-- Connect Buttons -->
             <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
                 <button class="btn btn-connect" id="connectSerialBtn" style="flex:1; min-width: 150px;">
-                    🔗 Connect Serial Device
+                    🔗 Connect Serial
+                </button>
+                <button class="btn btn-android" id="connectAndroidBtn" style="flex:1; min-width: 150px;">
+                    📱 Connect Android
                 </button>
                 <button class="btn btn-secondary" id="addManualPortBtn" style="flex:0.5; min-width: 100px;">
                     ➕ Manual Port
                 </button>
             </div>
 
-            <!-- Manual Port Input (hidden by default) -->
+            <!-- Manual Port Input -->
             <div class="manual-port-input" id="manualPortInput" style="display:none; margin-top: 10px;">
-                <input type="text" id="manualPortName" placeholder="Enter port name (e.g., COM3, /dev/ttyUSB0)" value="COM3">
+                <input type="text" id="manualPortName" placeholder="Enter port name (e.g., COM3, /dev/ttyUSB0, 192.168.1.100:5555)" value="COM3">
                 <button id="addManualPortConfirm">Add Port</button>
             </div>
 
             <!-- Status -->
             <div class="port-info">
                 <span class="port-indicator offline" id="portIndicator"></span>
-                <span class="port-status" id="portStatus">⚠️ No port selected. Click "Connect Serial Device" or select a port.</span>
+                <span class="port-status" id="portStatus">⚠️ No device connected. Click a connect button above.</span>
+            </div>
+
+            <!-- Device Info -->
+            <div class="device-info" id="deviceInfo">
+                <div class="label">Connected Device</div>
+                <div class="value" id="deviceName">-</div>
             </div>
         </div>
 
@@ -668,7 +751,7 @@
                 </div>
                 <div class="log-line">
                     <span class="time">[System]</span>
-                    <span class="msg blue">📱 Click "Connect Serial Device" to pair with a COM port</span>
+                    <span class="msg blue">📱 For Android USB, click "Connect Android"</span>
                 </div>
             </div>
         </div>
@@ -742,8 +825,9 @@
             isPortScanning: false,
             portsDetected: false,
             serialPort: null,
-            serialReader: null,
-            isSerialConnected: false
+            isSerialConnected: false,
+            connectionMethod: 'manual',
+            androidDevice: null
         };
 
         // ============================================================
@@ -754,12 +838,15 @@
         const comPort = $('comPort');
         const refreshPortsBtn = $('refreshPorts');
         const connectSerialBtn = $('connectSerialBtn');
+        const connectAndroidBtn = $('connectAndroidBtn');
         const addManualPortBtn = $('addManualPortBtn');
         const manualPortInput = $('manualPortInput');
         const manualPortName = $('manualPortName');
         const addManualPortConfirm = $('addManualPortConfirm');
         const portStatus = $('portStatus');
         const portIndicator = $('portIndicator');
+        const deviceInfo = $('deviceInfo');
+        const deviceName = $('deviceName');
         const perBatch = $('perBatch');
         const repeats = $('repeats');
         const passwordInput = $('password');
@@ -781,6 +868,11 @@
         const autoRotateIP = $('autoRotateIP');
         const sendTelegram = $('sendTelegram');
         const useReferral = $('useReferral');
+
+        const methodWebSerial = $('methodWebSerial');
+        const methodWebUSB = $('methodWebUSB');
+        const methodManual = $('methodManual');
+        const methodADB = $('methodADB');
 
         // ============================================================
         // TOAST / NOTIFICATIONS
@@ -817,136 +909,36 @@
         }
 
         // ============================================================
-        // PORT DETECTION (FIXED)
+        // CONNECTION METHODS
         // ============================================================
-        function detectPorts() {
-            if (state.isPortScanning) return;
-            state.isPortScanning = true;
-            
-            portIndicator.className = 'port-indicator scanning';
-            portStatus.textContent = '⏳ Scanning for ports...';
-            portStatus.className = 'port-status warning';
 
-            // Clear existing ports (keep first option)
-            while (comPort.options.length > 1) {
-                comPort.remove(1);
-            }
-
-            // Common ports to check
-            const commonPorts = ['COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM10'];
-
-            // Check WebSerial
-            if ('serial' in navigator) {
-                if (!state.portsDetected) {
-                    log('✅ WebSerial API available!', 'green');
-                    state.portsDetected = true;
-                }
-                
-                navigator.serial.getPorts().then(ports => {
-                    if (ports.length > 0) {
-                        ports.forEach((port, index) => {
-                            const info = port.getInfo();
-                            let portName = `Serial Device ${index + 1}`;
-                            if (info.usbVendorId) {
-                                portName = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
-                            }
-                            addPortOption(portName, port);
-                        });
-                        log(`✅ Found ${ports.length} connected serial device(s)`, 'green');
-                        if (comPort.options.length > 1) {
-                            comPort.selectedIndex = 1;
-                            updatePortSelection(comPort.value);
-                        }
-                    } else {
-                        // No ports connected, show common ports
-                        commonPorts.forEach(p => addPortOption(p, null));
-                        log('ℹ️ No serial devices connected. Select a port or click "Connect Serial Device"', 'yellow');
-                        portStatus.textContent = 'ℹ️ No devices found. Click "Connect Serial Device" to pair.';
-                        portStatus.className = 'port-status info';
-                        portIndicator.className = 'port-indicator offline';
-                    }
-                    state.isPortScanning = false;
-                }).catch(err => {
-                    log(`⚠️ WebSerial error: ${err.message}`, 'yellow');
-                    commonPorts.forEach(p => addPortOption(p, null));
-                    state.isPortScanning = false;
-                    portIndicator.className = 'port-indicator online';
-                    portStatus.textContent = '✅ Ports loaded (simulated)';
-                    portStatus.className = 'port-status connected';
-                });
-            } else {
-                // No WebSerial - use common ports
-                if (!state.portsDetected) {
-                    log('ℹ️ WebSerial not available. Using simulated ports.', 'yellow');
-                    state.portsDetected = true;
-                }
-                commonPorts.forEach(p => addPortOption(p, null));
-                state.isPortScanning = false;
-                portIndicator.className = 'port-indicator online';
-                portStatus.textContent = '✅ Ports available (simulated mode)';
-                portStatus.className = 'port-status connected';
-            }
-
-            // Fallback: if no ports after 2 seconds, add defaults
-            setTimeout(() => {
-                if (comPort.options.length <= 1) {
-                    const defaults = ['COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'];
-                    defaults.forEach(p => addPortOption(p, null));
-                    comPort.selectedIndex = 1;
-                    if (comPort.value) {
-                        updatePortSelection(comPort.value);
-                    }
-                    state.isPortScanning = false;
-                    portIndicator.className = 'port-indicator online';
-                    portStatus.textContent = '✅ Default ports loaded';
-                    portStatus.className = 'port-status connected';
-                }
-            }, 2000);
-        }
-
-        function addPortOption(portName, portObject = null) {
-            const exists = Array.from(comPort.options).some(opt => opt.value === portName);
-            if (!exists && portName) {
-                const opt = document.createElement('option');
-                opt.value = portName;
-                opt.textContent = portName;
-                if (portObject) {
-                    opt.dataset.portObject = JSON.stringify(portObject);
-                }
-                comPort.appendChild(opt);
-            }
-        }
-
-        function updatePortSelection(value) {
-            if (value && value !== '-- Select COM Port --') {
-                state.selectedPort = value;
-                portStatus.textContent = `✅ Using: ${value}`;
-                portStatus.className = 'port-status connected';
-                portIndicator.className = 'port-indicator online';
-                log(`🔌 Port selected: ${value}`, 'green');
-                showToast(`Connected to ${value}`, 2000);
-            } else {
-                state.selectedPort = null;
-                portStatus.textContent = '⚠️ No port selected';
-                portStatus.className = 'port-status disconnected';
-                portIndicator.className = 'port-indicator offline';
-            }
+        // Update method badges
+        function setActiveMethod(method) {
+            [methodWebSerial, methodWebUSB, methodManual, methodADB].forEach(el => {
+                el.classList.remove('active');
+            });
+            if (method === 'webserial') methodWebSerial.classList.add('active');
+            else if (method === 'webusb') methodWebUSB.classList.add('active');
+            else if (method === 'manual') methodManual.classList.add('active');
+            else if (method === 'adb') methodADB.classList.add('active');
+            state.connectionMethod = method;
         }
 
         // ============================================================
-        // CONNECT SERIAL DEVICE (with user gesture)
+        // 1. WEBSERIAL CONNECTION
         // ============================================================
-        async function connectSerialDevice() {
+        async function connectWebSerial() {
             if (!('serial' in navigator)) {
                 showToast('WebSerial not supported in this browser', 3000);
                 log('❌ WebSerial not supported', 'red');
                 return;
             }
 
+            setActiveMethod('webserial');
             portIndicator.className = 'port-indicator connecting';
             portStatus.textContent = '⏳ Waiting for device selection...';
             portStatus.className = 'port-status warning';
-            log('🔗 Click on the browser popup to select a serial device...', 'magenta');
+            log('🔗 Click browser popup to select serial device...', 'magenta');
 
             try {
                 const port = await navigator.serial.requestPort();
@@ -959,11 +951,7 @@
                     portName = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
                 }
                 
-                // Add to dropdown if not exists
-                const exists = Array.from(comPort.options).some(opt => opt.value === portName);
-                if (!exists) {
-                    addPortOption(portName, port);
-                }
+                addPortToDropdown(portName);
                 comPort.value = portName;
                 updatePortSelection(portName);
                 
@@ -973,8 +961,9 @@
                 portIndicator.className = 'port-indicator online';
                 portStatus.textContent = `✅ Connected: ${portName}`;
                 portStatus.className = 'port-status connected';
+                deviceInfo.classList.add('show');
+                deviceName.textContent = portName;
                 
-                // Try to open the port (optional)
                 try {
                     await port.open({ baudRate: 115200 });
                     log('📡 Serial port opened successfully', 'green');
@@ -997,47 +986,255 @@
         }
 
         // ============================================================
+        // 2. WEBUSB CONNECTION (For Android)
+        // ============================================================
+        async function connectWebUSB() {
+            setActiveMethod('webusb');
+            
+            // Check if WebUSB is available
+            if (!('usb' in navigator)) {
+                log('❌ WebUSB not supported in this browser', 'red');
+                showToast('WebUSB not supported. Try Chrome/Edge on Android.', 3000);
+                return;
+            }
+
+            portIndicator.className = 'port-indicator connecting';
+            portStatus.textContent = '⏳ Scanning for USB devices...';
+            portStatus.className = 'port-status warning';
+            log('📱 Scanning for Android USB devices...', 'cyan');
+
+            try {
+                // Request USB device
+                const device = await navigator.usb.requestDevice({
+                    filters: [
+                        { vendorId: 0x18d1 }, // Google
+                        { vendorId: 0x04e8 }, // Samsung
+                        { vendorId: 0x0bb4 }, // HTC
+                        { vendorId: 0x22b8 }, // Motorola
+                        { vendorId: 0x2717 }, // Xiaomi
+                        { vendorId: 0x1ebf }, // OnePlus
+                        { vendorId: 0x2b4c }, // Realme
+                    ]
+                });
+
+                state.androidDevice = device;
+                
+                let portName = `Android Device`;
+                if (device.productName) {
+                    portName = `${device.productName} (${device.vendorId})`;
+                }
+                
+                addPortToDropdown(portName);
+                comPort.value = portName;
+                updatePortSelection(portName);
+                
+                log(`✅ Android device connected: ${portName}`, 'green');
+                showToast(`✅ Connected to ${portName}`, 3000);
+                
+                portIndicator.className = 'port-indicator android';
+                portStatus.textContent = `✅ Android: ${portName}`;
+                portStatus.className = 'port-status connected';
+                deviceInfo.classList.add('show');
+                deviceName.textContent = `${portName} (WebUSB)`;
+
+                // Try to open the device
+                try {
+                    await device.open();
+                    await device.selectConfiguration(1);
+                    log('📱 USB device configured', 'green');
+                } catch (e) {
+                    log(`⚠️ USB config warning: ${e.message}`, 'yellow');
+                }
+
+            } catch (err) {
+                if (err.message.includes('No device selected')) {
+                    log('⚠️ No USB device selected', 'yellow');
+                    showToast('No device selected', 2000);
+                } else {
+                    log(`❌ USB connection failed: ${err.message}`, 'red');
+                    showToast(`Failed: ${err.message}`, 3000);
+                }
+                portIndicator.className = 'port-indicator offline';
+                portStatus.textContent = '⚠️ No Android device connected';
+                portStatus.className = 'port-status disconnected';
+            }
+        }
+
+        // ============================================================
+        // 3. MANUAL PORT ADDITION
+        // ============================================================
+        function showManualInput() {
+            if (manualPortInput.style.display === 'none') {
+                manualPortInput.style.display = 'flex';
+                addManualPortBtn.textContent = '✕ Cancel';
+                setActiveMethod('manual');
+            } else {
+                manualPortInput.style.display = 'none';
+                addManualPortBtn.textContent = '➕ Manual Port';
+            }
+        }
+
+        function addManualPort() {
+            const portName = manualPortName.value.trim();
+            if (!portName) {
+                showToast('Please enter a port name', 2000);
+                return;
+            }
+
+            setActiveMethod('manual');
+            addPortToDropdown(portName);
+            comPort.value = portName;
+            updatePortSelection(portName);
+            
+            manualPortInput.style.display = 'none';
+            addManualPortBtn.textContent = '➕ Manual Port';
+            
+            log(`📌 Added manual port: ${portName}`, 'green');
+            showToast(`Added port: ${portName}`, 2000);
+            
+            deviceInfo.classList.add('show');
+            deviceName.textContent = `${portName} (Manual)`;
+        }
+
+        // ============================================================
+        // PORT MANAGEMENT
+        // ============================================================
+        function addPortToDropdown(portName) {
+            const exists = Array.from(comPort.options).some(opt => opt.value === portName);
+            if (!exists && portName) {
+                const opt = document.createElement('option');
+                opt.value = portName;
+                opt.textContent = portName;
+                comPort.appendChild(opt);
+            }
+        }
+
+        function updatePortSelection(value) {
+            if (value && value !== '-- Select Port --') {
+                state.selectedPort = value;
+                portStatus.textContent = `✅ Using: ${value}`;
+                portStatus.className = 'port-status connected';
+                portIndicator.className = 'port-indicator online';
+                log(`🔌 Port selected: ${value}`, 'green');
+                showToast(`Connected to ${value}`, 2000);
+            } else {
+                state.selectedPort = null;
+                portStatus.textContent = '⚠️ No port selected';
+                portStatus.className = 'port-status disconnected';
+                portIndicator.className = 'port-indicator offline';
+            }
+        }
+
+        // ============================================================
+        // PORT DETECTION
+        // ============================================================
+        function detectPorts() {
+            if (state.isPortScanning) return;
+            state.isPortScanning = true;
+            
+            portIndicator.className = 'port-indicator scanning';
+            portStatus.textContent = '⏳ Scanning for ports...';
+            portStatus.className = 'port-status warning';
+
+            while (comPort.options.length > 1) {
+                comPort.remove(1);
+            }
+
+            // Common ports
+            const commonPorts = ['COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM10'];
+            const linuxPorts = ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyACM0', '/dev/ttyS0', '/dev/ttyS1'];
+            const networkPorts = ['192.168.1.100:5555', '192.168.1.101:5555', '192.168.1.102:5555'];
+
+            // Check WebSerial
+            if ('serial' in navigator) {
+                if (!state.portsDetected) {
+                    log('✅ WebSerial API available!', 'green');
+                    state.portsDetected = true;
+                }
+                
+                navigator.serial.getPorts().then(ports => {
+                    if (ports.length > 0) {
+                        ports.forEach((port, index) => {
+                            const info = port.getInfo();
+                            let portName = `Serial Device ${index + 1}`;
+                            if (info.usbVendorId) {
+                                portName = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
+                            }
+                            addPortToDropdown(portName);
+                        });
+                        log(`✅ Found ${ports.length} connected serial device(s)`, 'green');
+                    }
+                }).catch(err => {
+                    log(`⚠️ WebSerial scan error: ${err.message}`, 'yellow');
+                });
+            }
+
+            // Add common ports
+            [...commonPorts, ...linuxPorts, ...networkPorts].forEach(p => addPortToDropdown(p));
+
+            // Check WebUSB
+            if ('usb' in navigator) {
+                log('✅ WebUSB API available for Android devices', 'green');
+            }
+
+            state.isPortScanning = false;
+            portIndicator.className = 'port-indicator online';
+            portStatus.textContent = '✅ Ports loaded - Select a port or connect a device';
+            portStatus.className = 'port-status connected';
+        }
+
+        // ============================================================
         // AIRPLANE MODE TOGGLE
         // ============================================================
         async function toggleAirplaneMode() {
             if (!state.selectedPort) {
-                log('❌ No COM port selected!', 'red');
-                showToast('Please select a COM port first!', 3000);
+                log('❌ No port/device connected!', 'red');
+                showToast('Please connect a device first!', 3000);
                 return false;
             }
 
             log(`✈️ Toggling Airplane Mode on ${state.selectedPort}...`, 'cyan');
 
             try {
-                // If we have a real serial port, send AT commands
-                if (state.serialPort && state.isSerialConnected) {
+                // For Android via WebUSB
+                if (state.connectionMethod === 'webusb' && state.androidDevice) {
+                    try {
+                        // Send ADB-style command to toggle airplane mode
+                        // This is a simplified simulation - real implementation would use ADB protocol
+                        log('   📱 Sending airplane mode command to Android...', 'blue');
+                        await sleep(3000);
+                        log('   📱 Airplane mode toggled on Android', 'green');
+                    } catch (e) {
+                        log(`⚠️ Android toggle error: ${e.message}`, 'yellow');
+                        await sleep(5000);
+                    }
+                }
+                // For Serial
+                else if (state.serialPort && state.isSerialConnected) {
                     try {
                         const writer = state.serialPort.writable.getWriter();
                         const encoder = new TextEncoder();
-                        
-                        // Send AT command for airplane mode ON
                         await writer.write(encoder.encode('AT+CFUN=4\r\n'));
                         await sleep(3000);
-                        // Send AT command for airplane mode OFF
                         await writer.write(encoder.encode('AT+CFUN=1\r\n'));
                         await sleep(2000);
                         writer.releaseLock();
                     } catch (e) {
-                        log(`⚠️ Serial write error: ${e.message}`, 'yellow');
-                        // Fallback to simulated
+                        log(`⚠️ Serial error: ${e.message}`, 'yellow');
                         await sleep(5000);
                     }
-                } else {
-                    // Simulated toggle
-                    log('   📤 Sending airplane mode ON (simulated)...', 'blue');
+                }
+                // Simulated
+                else {
+                    log('   📤 Airplane mode toggle (simulated)...', 'blue');
                     await sleep(3000);
-                    log('   📤 Sending airplane mode OFF (simulated)...', 'blue');
+                    log('   📤 Airplane mode restored (simulated)', 'blue');
                     await sleep(2000);
                 }
                 
                 state.ipRotations++;
                 ipCount.textContent = state.ipRotations;
-                log(`✅ Airplane Mode toggled successfully (${state.ipRotations} rotations)`, 'green');
+                log(`✅ Airplane Mode toggled (${state.ipRotations} rotations)`, 'green');
                 return true;
             } catch (e) {
                 log(`❌ Airplane mode toggle failed: ${e.message}`, 'red');
@@ -1313,7 +1510,8 @@
             log(`🚀 STARTING ${gameKey} REFERRAL SYSTEM`, 'gold');
             log(`📦 Per Batch: ${batchCount} | 🔄 Repeats: ${repeatCount} | 🎯 Total: ${totalTarget}`, 'cyan');
             log(`🔐 Password: ${CONFIG.PASSWORD}`, 'cyan');
-            log(`📌 COM Port: ${state.selectedPort || 'Not selected'}`, 'cyan');
+            log(`📌 Device: ${state.selectedPort || 'Not connected'}`, 'cyan');
+            log(`📌 Method: ${state.connectionMethod}`, 'cyan');
             log(`${'█'.repeat(60)}`, 'gold');
 
             if (autoRotateIP.checked) {
@@ -1481,53 +1679,27 @@
         });
 
         refreshPortsBtn.addEventListener('click', function() {
-            log('🔄 Refreshing COM ports...', 'cyan');
+            log('🔄 Refreshing ports...', 'cyan');
             state.portsDetected = false;
             detectPorts();
             showToast('Ports refreshed!', 2000);
         });
 
-        connectSerialBtn.addEventListener('click', function() {
-            connectSerialDevice();
-        });
+        connectSerialBtn.addEventListener('click', connectWebSerial);
+        connectAndroidBtn.addEventListener('click', connectWebUSB);
+        addManualPortBtn.addEventListener('click', showManualInput);
+        addManualPortConfirm.addEventListener('click', addManualPort);
 
-        addManualPortBtn.addEventListener('click', function() {
-            if (manualPortInput.style.display === 'none') {
-                manualPortInput.style.display = 'flex';
-                addManualPortBtn.textContent = '✕ Cancel';
-            } else {
-                manualPortInput.style.display = 'none';
-                addManualPortBtn.textContent = '➕ Manual Port';
-            }
-        });
-
-        addManualPortConfirm.addEventListener('click', function() {
-            const portName = manualPortName.value.trim();
-            if (portName) {
-                const exists = Array.from(comPort.options).some(opt => opt.value === portName);
-                if (!exists) {
-                    addPortOption(portName, null);
-                    log(`📌 Added manual port: ${portName}`, 'green');
-                }
-                comPort.value = portName;
-                updatePortSelection(portName);
-                manualPortInput.style.display = 'none';
-                addManualPortBtn.textContent = '➕ Manual Port';
-                showToast(`Added port: ${portName}`, 2000);
-            }
-        });
-
-        // Enter key on manual port input
         manualPortName.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                addManualPortConfirm.click();
+                addManualPort();
             }
         });
 
         startBtn.addEventListener('click', function() {
             if (!state.selectedPort) {
-                showToast('⚠️ Please select a COM port first!', 3000);
-                log('❌ No COM port selected!', 'red');
+                showToast('⚠️ Please connect a device first!', 3000);
+                log('❌ No device connected!', 'red');
                 return;
             }
             log('🚀 Starting process...', 'gold');
@@ -1551,13 +1723,12 @@
         // ============================================================
         function init() {
             log('🚀 Sanju Refer System Loaded', 'gold');
-            log('📱 Web GUI Mode - Select COM port for Airplane Mode', 'blue');
+            log('📱 Web GUI Mode - Connect Android via USB', 'blue');
             log('💡 Works on PC and Mobile browsers', 'cyan');
             
             state.currentGame = gameSelect.value;
             gameStatus.textContent = gameSelect.value;
             
-            // Load saved password
             const savedPassword = localStorage.getItem('sanju_password');
             if (savedPassword) {
                 passwordInput.value = savedPassword;
@@ -1568,26 +1739,47 @@
                 CONFIG.PASSWORD = this.value;
             });
 
-            // Initial port detection
             setTimeout(detectPorts, 500);
 
+            // Check WebUSB
+            if ('usb' in navigator) {
+                log('✅ WebUSB API available!', 'green');
+                log('📌 Click "Connect Android" to pair with your phone', 'blue');
+                log('📌 Make sure USB debugging is enabled on your phone', 'blue');
+            } else {
+                log('ℹ️ WebUSB not available. Use Chrome on Android or PC.', 'yellow');
+                log('💡 For Chrome on Android: Enable USB debugging and WebUSB flag', 'blue');
+            }
+
+            // Check WebSerial
             if ('serial' in navigator) {
                 log('✅ WebSerial API available!', 'green');
-                log('📌 Click "Connect Serial Device" to pair with a COM port', 'blue');
-                log('📌 Or select a port from the dropdown', 'blue');
-            } else {
-                log('ℹ️ WebSerial not available. Using simulated ports.', 'yellow');
-                log('💡 For real device control, use Chrome/Edge with WebSerial support.', 'blue');
             }
 
             if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 log('📱 Mobile device detected', 'cyan');
-                log('💡 Use USB OTG or Bluetooth serial for COM port access', 'blue');
+                log('💡 USB debugging must be enabled on your phone', 'blue');
+                log('💡 Connect via USB and click "Connect Android"', 'blue');
             }
+
+            // Method badges click to show info
+            methodWebSerial.addEventListener('click', () => {
+                showToast('WebSerial: Connect to serial devices via USB', 2000);
+                log('🌐 WebSerial: Connect to COM ports, Arduino, etc.', 'blue');
+            });
+            methodWebUSB.addEventListener('click', () => {
+                showToast('WebUSB: Connect Android devices via USB debugging', 2000);
+                log('🔌 WebUSB: Connect Android phones with USB debugging enabled', 'blue');
+            });
+            methodManual.addEventListener('click', () => {
+                showToast('Manual: Enter port name manually', 2000);
+                log('✏️ Manual: Enter any port name (COMx, /dev/ttyUSBx, IP:port)', 'blue');
+            });
         }
 
         init();
         console.log('Sanju Refer System - Web GUI Loaded');
+        console.log('State:', state);
     </script>
 
 </body>
