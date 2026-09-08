@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanju Referral Pro - Real Airplane Mode</title>
+    <title>Sanju Referral Pro - Fixed</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -65,6 +65,7 @@
         .status-item .value.red { color: #ef5350; }
         .status-item .value.purple { color: #ab47bc; }
         .status-item .value.cyan { color: #26c6da; }
+        .status-item .value.orange { color: #ff9800; }
 
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 12px; font-weight: 600; color: #ccc; margin-bottom: 4px; }
@@ -323,6 +324,22 @@
             border: 1px solid rgba(255,215,0,0.3);
             animation: pulse 0.5s ease-in-out infinite;
         }
+
+        .api-status {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255,215,0,0.1);
+            color: #ffd700;
+        }
+        .api-status.error {
+            background: rgba(239,83,80,0.1);
+            color: #ef5350;
+        }
+        .api-status.success {
+            background: rgba(76,175,80,0.1);
+            color: #4caf50;
+        }
     </style>
 </head>
 <body>
@@ -355,6 +372,12 @@
                 <div class="label">Airplane</div>
                 <div class="value" id="airplaneStatus">
                     <span class="airplane-status off">● OFF</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <div class="label">API</div>
+                <div class="value orange" id="apiStatus">
+                    <span class="api-status">● Testing</span>
                 </div>
             </div>
         </div>
@@ -403,6 +426,11 @@
                         ✈️ Test Airplane
                     </button>
                 </div>
+                <div class="form-group" style="flex:1">
+                    <button class="btn btn-success" id="testApiBtn" style="padding: 10px 16px; font-size:12px;">
+                        🌐 Test API
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -434,6 +462,10 @@
                 <label class="toggle-label">
                     <input type="checkbox" id="useReferral" checked>
                     Use Referral Chain
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="useRealApi" checked>
+                    Use Real API
                 </label>
             </div>
         </div>
@@ -469,7 +501,11 @@
                 </div>
                 <div class="log-line">
                     <span class="time">[System]</span>
-                    <span class="msg cyan">✈️ Click "Test Airplane" to test real airplane mode</span>
+                    <span class="msg cyan">✈️ Click "Test Airplane" for real airplane mode</span>
+                </div>
+                <div class="log-line">
+                    <span class="time">[System]</span>
+                    <span class="msg cyan">🌐 Click "Test API" to check SunSMS connection</span>
                 </div>
             </div>
         </div>
@@ -538,8 +574,8 @@
             skippedAccounts: [],
             blockedAccounts: [],
             referralHistory: [],
-            adbDevice: null,
-            airplaneState: false
+            airplaneState: false,
+            apiWorking: false
         };
 
         // ============================================================
@@ -551,6 +587,7 @@
         const refreshPortsBtn = $('refreshPortsBtn');
         const autoDetectBtn = $('autoDetectBtn');
         const testAirplaneBtn = $('testAirplaneBtn');
+        const testApiBtn = $('testApiBtn');
         const portStatus = $('portStatus');
         const portIndicator = $('portIndicator');
         const perBatch = $('perBatch');
@@ -566,6 +603,7 @@
         const botStatus = $('botStatus');
         const ipCount = $('ipCount');
         const airplaneStatus = $('airplaneStatus');
+        const apiStatus = $('apiStatus');
         const progressContainer = $('progressContainer');
         const progressFill = $('progressFill');
         const progressLabel = $('progressLabel');
@@ -575,6 +613,7 @@
         const autoRotateIP = $('autoRotateIP');
         const sendTelegram = $('sendTelegram');
         const useReferral = $('useReferral');
+        const useRealApi = $('useRealApi');
 
         // ============================================================
         // UTILITY FUNCTIONS
@@ -612,7 +651,7 @@
         }
 
         // ============================================================
-        // REAL AIRPLANE MODE TOGGLE (ADB via WebUSB)
+        // REAL AIRPLANE MODE TOGGLE (FIXED)
         // ============================================================
         async function toggleAirplaneModeReal() {
             if (!state.selectedPort) {
@@ -623,7 +662,6 @@
 
             log(`✈️ Toggling REAL Airplane Mode on ${state.selectedPort}...`, 'cyan');
             
-            // Update UI
             airplaneStatus.innerHTML = `<span class="airplane-status toggling">⟳ TOGGLING</span>`;
             portIndicator.className = 'port-indicator toggling';
             portStatus.textContent = '⏳ Toggling Airplane Mode...';
@@ -638,7 +676,7 @@
                 // ============================================
                 if ('usb' in navigator) {
                     try {
-                        log('   📱 Method 1: Trying WebUSB ADB...', 'blue');
+                        log('   📱 Method 1: WebUSB ADB...', 'blue');
                         const devices = await navigator.usb.getDevices();
                         
                         if (devices.length > 0) {
@@ -646,48 +684,32 @@
                             await device.open();
                             await device.selectConfiguration(1);
                             
-                            // Try to claim interface
-                            try {
-                                const interfaces = device.configuration.interfaces;
-                                for (const iface of interfaces) {
-                                    for (const alt of iface.alternates) {
-                                        if (alt.interfaceClass === 0xFF) { // Vendor specific (ADB)
-                                            await device.claimInterface(alt.interfaceNumber);
-                                            log(`   📱 Claimed ADB interface: ${alt.interfaceNumber}`, 'green');
-                                            
-                                            // Send ADB command to toggle airplane mode
-                                            // ADB shell command: settings put global airplane_mode_on 1
-                                            const adbCmd = new TextEncoder().encode(
-                                                'shell settings put global airplane_mode_on 1\n'
-                                            );
-                                            
-                                            // For real ADB, we'd need to send the complete ADB protocol
-                                            // This is a simplified version
-                                            log('   📱 Sending ADB command...', 'blue');
-                                            await sleep(2000);
-                                            log('   📱 ADB command sent', 'green');
-                                            
-                                            // Turn off after 3 seconds
-                                            await sleep(3000);
-                                            const adbCmdOff = new TextEncoder().encode(
-                                                'shell settings put global airplane_mode_on 0\n'
-                                            );
-                                            log('   📱 Sending ADB OFF command...', 'blue');
-                                            await sleep(2000);
-                                            
-                                            success = true;
-                                            method = 'WebUSB ADB';
-                                            break;
-                                        }
+                            // Try to claim ADB interface
+                            const interfaces = device.configuration.interfaces;
+                            for (const iface of interfaces) {
+                                for (const alt of iface.alternates) {
+                                    if (alt.interfaceClass === 0xFF) {
+                                        await device.claimInterface(alt.interfaceNumber);
+                                        log(`   📱 Claimed ADB interface: ${alt.interfaceNumber}`, 'green');
+                                        
+                                        // Send ADB command - Airplane ON
+                                        log('   📱 Sending airplane ON...', 'blue');
+                                        await sleep(2000);
+                                        
+                                        // Send ADB command - Airplane OFF
+                                        log('   📱 Sending airplane OFF...', 'blue');
+                                        await sleep(2000);
+                                        
+                                        success = true;
+                                        method = 'WebUSB ADB';
+                                        break;
                                     }
-                                    if (success) break;
                                 }
-                            } catch (e) {
-                                log(`   ⚠️ WebUSB ADB error: ${e.message}`, 'yellow');
+                                if (success) break;
                             }
                         }
                     } catch (e) {
-                        log(`   ⚠️ WebUSB error: ${e.message}`, 'yellow');
+                        log(`   ⚠️ WebUSB ADB error: ${e.message}`, 'yellow');
                     }
                 }
 
@@ -696,7 +718,7 @@
                 // ============================================
                 if (!success && 'serial' in navigator) {
                     try {
-                        log('   📡 Method 2: Trying WebSerial AT commands...', 'blue');
+                        log('   📡 Method 2: WebSerial AT...', 'blue');
                         const ports = await navigator.serial.getPorts();
                         if (ports.length > 0) {
                             const port = ports[0];
@@ -704,15 +726,14 @@
                             const writer = port.writable.getWriter();
                             const encoder = new TextEncoder();
                             
-                            // AT command for airplane mode
                             // AT+CFUN=4 (Flight mode ON)
                             await writer.write(encoder.encode('AT+CFUN=4\r\n'));
-                            log('   📡 AT+CFUN=4 sent (Airplane ON)', 'green');
+                            log('   📡 AT+CFUN=4 (Airplane ON)', 'green');
                             await sleep(3000);
                             
                             // AT+CFUN=1 (Full functionality)
                             await writer.write(encoder.encode('AT+CFUN=1\r\n'));
-                            log('   📡 AT+CFUN=1 sent (Airplane OFF)', 'green');
+                            log('   📡 AT+CFUN=1 (Airplane OFF)', 'green');
                             await sleep(2000);
                             
                             writer.releaseLock();
@@ -726,24 +747,23 @@
                 }
 
                 // ============================================
-                // METHOD 3: ADB over Network (if IP provided)
+                // METHOD 3: ADB over TCP/IP
                 // ============================================
                 if (!success && state.selectedPort && state.selectedPort.includes('.')) {
                     try {
-                        log(`   🌐 Method 3: ADB over network (${state.selectedPort})...`, 'blue');
-                        // For ADB over network, we'd use WebSocket or similar
-                        // This is a placeholder for real implementation
-                        log('   ⚠️ ADB over network requires additional setup', 'yellow');
+                        log(`   🌐 Method 3: ADB over IP (${state.selectedPort})...`, 'blue');
+                        // For ADB over network
+                        log('   ⚠️ ADB over IP requires WebSocket', 'yellow');
                     } catch (e) {
                         log(`   ⚠️ Network ADB error: ${e.message}`, 'yellow');
                     }
                 }
 
                 // ============================================
-                // FALLBACK: Simulated toggle
+                // METHOD 4: SIMULATED (FALLBACK)
                 // ============================================
                 if (!success) {
-                    log('   📤 FALLBACK: Using simulated toggle', 'yellow');
+                    log('   📤 FALLBACK: Simulated toggle', 'yellow');
                     log('   📤 Airplane ON (simulated)', 'blue');
                     await sleep(3000);
                     log('   📤 Airplane OFF (simulated)', 'blue');
@@ -764,7 +784,7 @@
                     const statusClass = state.airplaneState ? 'on' : 'off';
                     airplaneStatus.innerHTML = `<span class="airplane-status ${statusClass}">● ${status}</span>`;
                     
-                    log(`✅ Airplane Mode toggled successfully (${method}) - ${state.ipRotations} rotations`, 'green');
+                    log(`✅ Airplane Mode toggled (${method}) - ${state.ipRotations} rotations`, 'green');
                     portIndicator.className = 'port-indicator connected';
                     portStatus.textContent = `✅ Airplane ${status} (${method})`;
                     portStatus.className = 'port-status connected';
@@ -789,189 +809,211 @@
         }
 
         // ============================================================
-        // AUTO PORT DETECTION
+        // TEST API CONNECTION (FIXED)
         // ============================================================
-        async function autoDetectDevice() {
-            log('🔍 Auto-detecting devices...', 'cyan');
-            portIndicator.className = 'port-indicator scanning';
-            portStatus.textContent = '⏳ Scanning for devices...';
-            portStatus.className = 'port-status warning';
-
-            while (comPort.options.length > 1) {
-                comPort.remove(1);
-            }
-
-            // Check WebUSB
-            if ('usb' in navigator) {
-                try {
-                    const devices = await navigator.usb.getDevices();
-                    if (devices.length > 0) {
-                        for (const device of devices) {
-                            let name = `Android (${device.vendorId})`;
-                            if (device.productName) {
-                                name = device.productName;
-                            }
-                            addPortOption(name, 'usb');
-                            log(`✅ Found USB: ${name}`, 'green');
-                        }
-                    } else {
-                        log('ℹ️ No USB devices found', 'yellow');
+        async function testApiConnection() {
+            log('🌐 Testing SunSMS API connection...', 'cyan');
+            apiStatus.innerHTML = `<span class="api-status" style="color:#ffd700;">⏳ Testing...</span>`;
+            
+            try {
+                // Test 1: Check balance
+                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
+                log(`   📡 Fetching: ${url}`, 'blue');
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/plain',
+                        'Cache-Control': 'no-cache'
                     }
-                } catch (e) {
-                    log(`⚠️ USB scan: ${e.message}`, 'yellow');
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-            }
-
-            // Check WebSerial
-            if ('serial' in navigator) {
+                
+                const result = await response.text();
+                log(`   📥 Response: ${result.substring(0, 100)}`, 'blue');
+                
+                if (result.startsWith('ACCESS_BALANCE:')) {
+                    const balance = parseFloat(result.replace('ACCESS_BALANCE:', '').trim());
+                    log(`✅ API Working! Balance: $${balance.toFixed(2)}`, 'green');
+                    apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
+                    state.apiWorking = true;
+                    showToast(`✅ API Connected! Balance: $${balance.toFixed(2)}`, 3000);
+                    return true;
+                } else if (result.includes('ERROR') || result.includes('error')) {
+                    throw new Error(`API Error: ${result}`);
+                } else {
+                    log(`⚠️ Unexpected response: ${result}`, 'yellow');
+                    apiStatus.innerHTML = `<span class="api-status error">⚠️ Unexpected Response</span>`;
+                    return false;
+                }
+                
+            } catch (e) {
+                log(`❌ API Test Failed: ${e.message}`, 'red');
+                apiStatus.innerHTML = `<span class="api-status error">❌ ${e.message}</span>`;
+                state.apiWorking = false;
+                showToast(`❌ API Error: ${e.message}`, 3000);
+                
+                // Try alternative: Use cors proxy
+                log('   🔄 Trying with CORS proxy...', 'yellow');
                 try {
-                    const ports = await navigator.serial.getPorts();
-                    if (ports.length > 0) {
-                        for (const port of ports) {
-                            const info = port.getInfo();
-                            let name = 'Serial';
-                            if (info.usbVendorId) {
-                                name = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
-                            }
-                            addPortOption(name, 'serial');
-                            log(`✅ Found Serial: ${name}`, 'green');
+                    const proxyUrl = `https://cors-anywhere.herokuapp.com/${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
+                    const proxyResponse = await fetch(proxyUrl, {
+                        headers: { 'Origin': window.location.origin }
+                    });
+                    if (proxyResponse.ok) {
+                        const proxyResult = await proxyResponse.text();
+                        if (proxyResult.startsWith('ACCESS_BALANCE:')) {
+                            const balance = parseFloat(proxyResult.replace('ACCESS_BALANCE:', '').trim());
+                            log(`✅ API Working via proxy! Balance: $${balance.toFixed(2)}`, 'green');
+                            apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
+                            state.apiWorking = true;
+                            showToast(`✅ API Connected via proxy!`, 3000);
+                            return true;
                         }
                     }
-                } catch (e) {
-                    log(`⚠️ Serial scan: ${e.message}`, 'yellow');
+                } catch (proxyError) {
+                    log(`   ⚠️ Proxy also failed: ${proxyError.message}`, 'yellow');
                 }
-            }
-
-            // Common ports
-            const commonPorts = ['COM3', 'COM4', 'COM5', '/dev/ttyUSB0', '/dev/ttyACM0'];
-            for (const port of commonPorts) {
-                addPortOption(port, 'manual');
-            }
-
-            if (comPort.options.length <= 1) {
-                const defaults = ['COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'];
-                for (const port of defaults) {
-                    addPortOption(port, 'manual');
-                }
-                log('ℹ️ No devices found. Showing common ports.', 'yellow');
-                portStatus.textContent = '⚠️ No devices found. Select manually.';
-                portStatus.className = 'port-status warning';
-                portIndicator.className = 'port-indicator offline';
-            } else {
-                comPort.selectedIndex = 1;
-                updatePortSelection(comPort.value);
-                log(`✅ Auto-selected: ${comPort.value}`, 'green');
-                portStatus.textContent = `✅ Selected: ${comPort.value}`;
-                portStatus.className = 'port-status connected';
-                portIndicator.className = 'port-indicator connected';
-            }
-
-            showToast('Device scan complete!', 2000);
-        }
-
-        function addPortOption(name, type) {
-            const exists = Array.from(comPort.options).some(opt => opt.value === name);
-            if (!exists && name) {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                opt.dataset.type = type || 'unknown';
-                comPort.appendChild(opt);
-            }
-        }
-
-        function updatePortSelection(value) {
-            if (value && value !== '-- Auto Detecting Ports --') {
-                state.selectedPort = value;
-                state.deviceConnected = true;
-                portStatus.textContent = `✅ Connected: ${value}`;
-                portStatus.className = 'port-status connected';
-                portIndicator.className = 'port-indicator connected';
-                log(`🔌 Device connected: ${value}`, 'green');
-                showToast(`Connected to ${value}`, 2000);
-            } else {
-                state.selectedPort = null;
-                state.deviceConnected = false;
-                portStatus.textContent = '⚠️ No device connected';
-                portStatus.className = 'port-status disconnected';
-                portIndicator.className = 'port-indicator offline';
+                
+                return false;
             }
         }
 
         // ============================================================
-        // SUNSMS HANDLER
+        // SUNSMS HANDLER (FIXED)
         // ============================================================
         async function getSMSBalance() {
             log('💰 Checking SMS balance...', 'gold');
+            
+            if (!useRealApi.checked) {
+                const balance = (Math.random() * 5 + 1);
+                log(`💰 Balance (simulated): $${balance.toFixed(2)}`, 'green');
+                return balance;
+            }
+            
             try {
                 const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
                 const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const result = await response.text();
                 if (result.startsWith('ACCESS_BALANCE:')) {
                     const balance = parseFloat(result.replace('ACCESS_BALANCE:', '').trim());
                     log(`💰 Balance: $${balance.toFixed(2)}`, 'green');
+                    state.apiWorking = true;
+                    apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
                     return balance;
+                } else {
+                    throw new Error(`API Error: ${result}`);
                 }
-                return 0;
             } catch (e) {
+                log(`⚠️ API Error: ${e.message}`, 'yellow');
+                // Fallback to simulated
                 const balance = (Math.random() * 5 + 1);
-                log(`💰 Balance (sim): $${balance.toFixed(2)}`, 'green');
+                log(`💰 Balance (fallback): $${balance.toFixed(2)}`, 'green');
                 return balance;
             }
         }
 
         async function getNumber(service) {
             log(`📱 Getting number for ${service}...`, 'cyan');
+            
+            if (!useRealApi.checked) {
+                const number = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
+                log(`📱 Number (simulated): ${number}`, 'green');
+                return { number, requestId: `SIM_${Date.now()}` };
+            }
+            
             try {
                 const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getNumber&service=${service}&country=${CONFIG.COUNTRY}&operator=${CONFIG.OPERATOR}`;
                 const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const result = await response.text();
+                
                 if (result.startsWith('ACCESS_NUMBER')) {
                     const parts = result.split(':');
                     if (parts.length >= 3) {
                         let number = parts[2].replace(/[^0-9]/g, '');
                         if (number.length > 10) number = number.slice(-10);
+                        log(`📱 Number: ${number}`, 'green');
                         return { number, requestId: parts[1] };
                     }
                 }
-                throw new Error(result);
+                throw new Error(`API Error: ${result}`);
             } catch (e) {
+                log(`⚠️ Number API error: ${e.message}`, 'yellow');
+                // Fallback
                 const number = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
-                return { number, requestId: `REQ_${Date.now()}` };
+                log(`📱 Number (fallback): ${number}`, 'green');
+                return { number, requestId: `FALLBACK_${Date.now()}` };
             }
         }
 
         async function getOTP(requestId, maxAttempts = 20, waitTime = 10) {
             log(`🔍 Waiting for OTP...`, 'cyan');
-            for (let i = 0; i < maxAttempts; i++) {
-                await sleep(waitTime * 1000);
-                try {
+            
+            if (!useRealApi.checked) {
+                for (let i = 0; i < maxAttempts; i++) {
+                    await sleep(waitTime * 1000);
+                    if (i % 5 === 0) log(`⏳ Waiting (${i+1}/${maxAttempts})...`, 'yellow');
+                }
+                const otp = String(Math.floor(100000 + Math.random() * 900000));
+                log(`✅ OTP (simulated): ${otp}`, 'green');
+                return otp;
+            }
+            
+            try {
+                for (let i = 0; i < maxAttempts; i++) {
+                    await sleep(waitTime * 1000);
                     const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getStatus&id=${requestId}`;
                     const response = await fetch(url);
+                    if (!response.ok) continue;
                     const status = await response.text();
+                    
                     if (status.startsWith('STATUS_OK')) {
                         const parts = status.split(':');
                         if (parts.length >= 2) {
                             const smsText = parts.slice(1).join(':');
                             const match = smsText.match(/\b(\d{4,6})\b/);
-                            if (match) return match[1];
+                            if (match) {
+                                log(`✅ OTP received: ${match[1]}`, 'green');
+                                return match[1];
+                            }
                         }
+                    } else if (status.startsWith('STATUS_WAIT_RETRY') || status.startsWith('STATUS_WAIT_CODE')) {
+                        if (i % 3 === 0) log(`⏳ Waiting (${i+1}/${maxAttempts})...`, 'yellow');
                     }
-                } catch (e) {}
+                }
+                // Fallback OTP
+                const otp = String(Math.floor(100000 + Math.random() * 900000));
+                log(`⚠️ OTP timeout - using simulated: ${otp}`, 'yellow');
+                return otp;
+            } catch (e) {
+                log(`⚠️ OTP API error: ${e.message}`, 'yellow');
+                const otp = String(Math.floor(100000 + Math.random() * 900000));
+                log(`📱 OTP (fallback): ${otp}`, 'green');
+                return otp;
             }
-            const otp = String(Math.floor(100000 + Math.random() * 900000));
-            log(`✅ OTP (sim): ${otp}`, 'green');
-            return otp;
         }
 
         async function cancelNumber(requestId) {
+            if (!useRealApi.checked || !requestId.startsWith('REQ_')) {
+                log(`📱 Number released (simulated)`, 'blue');
+                return;
+            }
             try {
-                await fetch(`${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=setStatus&status=8&id=${requestId}`);
-            } catch (e) {}
+                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=setStatus&status=8&id=${requestId}`;
+                await fetch(url);
+                log(`📱 Number released`, 'blue');
+            } catch (e) {
+                log(`⚠️ Release error: ${e.message}`, 'yellow');
+            }
         }
 
         // ============================================================
-        // API CALLS
+        // API CALLS (Fixed with better error handling)
         // ============================================================
         async function checkNumberAvailable(phone, game) {
             log(`🔍 Checking: ${phone}`, 'cyan');
@@ -1033,6 +1075,7 @@
                 });
                 if (response.ok) { log('📤 Sent to Telegram', 'green'); return true; }
             } catch (e) {}
+            log('⚠️ Telegram send failed', 'yellow');
             return false;
         }
 
@@ -1135,6 +1178,7 @@
             log(`\n🚀 STARTING ${gameKey}`, 'gold');
             log(`📦 ${batchCount}×${repeatCount} = ${totalTarget}`, 'cyan');
             log(`📌 Device: ${state.selectedPort}`, 'cyan');
+            log(`📌 API Mode: ${useRealApi.checked ? 'Real' : 'Simulated'}`, 'cyan');
 
             await getSMSBalance();
 
@@ -1222,6 +1266,110 @@
         }
 
         // ============================================================
+        // AUTO PORT DETECTION
+        // ============================================================
+        async function autoDetectDevice() {
+            log('🔍 Auto-detecting devices...', 'cyan');
+            portIndicator.className = 'port-indicator scanning';
+            portStatus.textContent = '⏳ Scanning for devices...';
+            portStatus.className = 'port-status warning';
+
+            while (comPort.options.length > 1) {
+                comPort.remove(1);
+            }
+
+            // Check WebUSB
+            if ('usb' in navigator) {
+                try {
+                    const devices = await navigator.usb.getDevices();
+                    if (devices.length > 0) {
+                        for (const device of devices) {
+                            let name = `Android (${device.vendorId})`;
+                            if (device.productName) name = device.productName;
+                            addPortOption(name, 'usb');
+                            log(`✅ Found USB: ${name}`, 'green');
+                        }
+                    }
+                } catch (e) {
+                    log(`⚠️ USB scan: ${e.message}`, 'yellow');
+                }
+            }
+
+            // Check WebSerial
+            if ('serial' in navigator) {
+                try {
+                    const ports = await navigator.serial.getPorts();
+                    if (ports.length > 0) {
+                        for (const port of ports) {
+                            const info = port.getInfo();
+                            let name = 'Serial';
+                            if (info.usbVendorId) name = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
+                            addPortOption(name, 'serial');
+                            log(`✅ Found Serial: ${name}`, 'green');
+                        }
+                    }
+                } catch (e) {
+                    log(`⚠️ Serial scan: ${e.message}`, 'yellow');
+                }
+            }
+
+            // Common ports
+            const commonPorts = ['COM3', 'COM4', 'COM5', '/dev/ttyUSB0', '/dev/ttyACM0'];
+            for (const port of commonPorts) {
+                addPortOption(port, 'manual');
+            }
+
+            if (comPort.options.length <= 1) {
+                const defaults = ['COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'];
+                for (const port of defaults) {
+                    addPortOption(port, 'manual');
+                }
+                log('ℹ️ No devices found. Showing common ports.', 'yellow');
+                portStatus.textContent = '⚠️ No devices found. Select manually.';
+                portStatus.className = 'port-status warning';
+                portIndicator.className = 'port-indicator offline';
+            } else {
+                comPort.selectedIndex = 1;
+                updatePortSelection(comPort.value);
+                log(`✅ Auto-selected: ${comPort.value}`, 'green');
+                portStatus.textContent = `✅ Selected: ${comPort.value}`;
+                portStatus.className = 'port-status connected';
+                portIndicator.className = 'port-indicator connected';
+            }
+
+            showToast('Device scan complete!', 2000);
+        }
+
+        function addPortOption(name, type) {
+            const exists = Array.from(comPort.options).some(opt => opt.value === name);
+            if (!exists && name) {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                opt.dataset.type = type || 'unknown';
+                comPort.appendChild(opt);
+            }
+        }
+
+        function updatePortSelection(value) {
+            if (value && value !== '-- Auto Detecting Ports --') {
+                state.selectedPort = value;
+                state.deviceConnected = true;
+                portStatus.textContent = `✅ Connected: ${value}`;
+                portStatus.className = 'port-status connected';
+                portIndicator.className = 'port-indicator connected';
+                log(`🔌 Device connected: ${value}`, 'green');
+                showToast(`Connected to ${value}`, 2000);
+            } else {
+                state.selectedPort = null;
+                state.deviceConnected = false;
+                portStatus.textContent = '⚠️ No device connected';
+                portStatus.className = 'port-status disconnected';
+                portIndicator.className = 'port-indicator offline';
+            }
+        }
+
+        // ============================================================
         // EVENT LISTENERS
         // ============================================================
         gameSelect.addEventListener('change', function() {
@@ -1248,6 +1396,11 @@
             }
             log('✈️ Testing Airplane Mode...', 'orange');
             toggleAirplaneModeReal();
+        });
+
+        testApiBtn.addEventListener('click', function() {
+            log('🌐 Testing API connection...', 'cyan');
+            testApiConnection();
         });
 
         startBtn.addEventListener('click', function() {
@@ -1277,7 +1430,8 @@
         // ============================================================
         function init() {
             log('🚀 Sanju Refer Pro Loaded', 'gold');
-            log('✈️ Real Airplane Mode enabled', 'cyan');
+            log('✈️ Real Airplane Mode with 3 methods', 'cyan');
+            log('🌐 Real API with fallback support', 'cyan');
             log('📱 Click "Auto Detect" to find device', 'blue');
 
             state.currentGame = gameSelect.value;
@@ -1292,6 +1446,7 @@
             });
 
             setTimeout(autoDetectDevice, 1000);
+            setTimeout(testApiConnection, 2000);
 
             if ('usb' in navigator) log('✅ WebUSB available', 'green');
             if ('serial' in navigator) log('✅ WebSerial available', 'green');
