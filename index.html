@@ -1,1460 +1,1897 @@
+```
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanju Referral Pro - Fixed</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a1a;
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding: 15px;
-            overflow-x: hidden;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: linear-gradient(145deg, #12122a, #1a1a3e);
-            border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,215,0,0.2);
-        }
-        .header {
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255,215,0,0.3);
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .header .subtitle { font-size: 13px; color: #aaa; }
-        .header .developer { color: #ff6bcd; font-weight: 600; font-size: 12px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Sanju · INDUS Lottery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      min-height: 100vh;
+      background: #0b1120;
+      color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 55%),
+                  radial-gradient(ellipse at 70% 80%, rgba(251, 113, 133, 0.06) 0%, transparent 50%),
+                  #0b1120;
+      padding: 16px 12px 30px;
+    }
+    .page { width: 100%; max-width: 500px; margin: 0 auto; position: relative; }
+    .glass {
+      background: rgba(18, 24, 40, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(139, 92, 246, 0.02);
+      border-radius: 40px;
+      padding: 24px 18px 18px;
+      transition: box-shadow 0.25s;
+    }
+    .toast-notification {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-24px);
+      z-index: 99999;
+      padding: 14px 22px;
+      border-radius: 18px;
+      font-weight: 700;
+      font-size: 14px;
+      max-width: 460px;
+      width: calc(100% - 32px);
+      text-align: center;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(11, 17, 32, 0.96);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .toast-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+    .toast-notification.error { background: rgba(200, 30, 50, 0.95); color: #fff; border-color: rgba(255, 80, 80, 0.2); }
+    .toast-notification.success { background: rgba(20, 160, 70, 0.95); color: #fff; border-color: rgba(80, 255, 80, 0.1); }
+    .toast-notification.warning { background: rgba(180, 120, 20, 0.95); color: #fff; border-color: rgba(255, 200, 80, 0.1); }
+    .logout-confirm-overlay, .exit-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 99999;
+      justify-content: center;
+      align-items: center;
+    }
+    .logout-confirm-overlay.active, .exit-overlay.active { display: flex; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    .logout-confirm-popup, .exit-popup {
+      background: linear-gradient(145deg, rgba(18, 24, 40, 0.98), rgba(8, 12, 26, 0.99));
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 32px;
+      padding: 32px 24px 24px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .logout-confirm-popup .popup-icon, .exit-popup .popup-icon { font-size: 48px; margin-bottom: 12px; }
+    .logout-confirm-popup .popup-title, .exit-popup .popup-title { font-size: 22px; font-weight: 800; color: #f1f5f9; margin-bottom: 6px; }
+    .logout-confirm-popup .popup-sub, .exit-popup .popup-sub { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+    .logout-confirm-popup .popup-buttons, .exit-popup .popup-buttons { display: flex; gap: 12px; }
+    .logout-confirm-popup .popup-buttons button, .exit-popup .popup-buttons button {
+      flex: 1; padding: 14px 10px; border: none; border-radius: 18px;
+      font-weight: 700; font-size: 15px; cursor: pointer;
+      transition: transform 0.15s ease; will-change: transform;
+    }
+    .logout-confirm-popup .popup-buttons button:active, .exit-popup .popup-buttons button:active { transform: scale(0.96); }
+    .logout-confirm-popup .popup-buttons .btn-yes {
+      background: linear-gradient(100deg, #fb7185, #e11d48);
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(251, 113, 133, 0.2);
+    }
+    .logout-confirm-popup .popup-buttons .btn-no {
+      background: rgba(255, 255, 255, 0.04);
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .logout-confirm-popup .popup-buttons .btn-no:hover { background: rgba(255, 255, 255, 0.08); color: #f1f5f9; }
+    .exit-popup { border-color: rgba(139, 92, 246, 0.1); }
+    .exit-popup .popup-buttons .btn-stay {
+      background: linear-gradient(100deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);
+    }
+    .exit-popup .popup-buttons .btn-exit {
+      background: rgba(251, 113, 133, 0.04);
+      color: #fb7185;
+      border: 1px solid rgba(251, 113, 133, 0.06);
+    }
+    .exit-popup .popup-buttons .btn-exit:hover { background: rgba(251, 113, 133, 0.08); }
+    .login-section { margin-top: 6px; }
+    .welcome-text { text-align: center; margin-bottom: 28px; }
+    .welcome-text .mini {
+      color: #fbbf24;
+      font-size: 11px;
+      letter-spacing: 5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .welcome-text .sub-title {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fbbf24, #fb7185);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .welcome-text .sub-title .highlight { -webkit-text-fill-color: #8b5cf6; }
+    .welcome-text p { color: #94a3b8; font-size: 14px; margin-top: 4px; font-weight: 400; }
+    .form-group { margin-bottom: 18px; }
+    .label {
+      display: block;
+      color: #a5b4fc;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      height: 58px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(8, 12, 26, 0.6);
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.02);
+      transition: border 0.2s, box-shadow 0.2s;
+      will-change: border, box-shadow;
+    }
+    .input-wrap:focus-within {
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.03), 0 0 40px rgba(139, 92, 246, 0.02);
+    }
+    .input-icon { width: 52px; text-align: center; font-size: 20px; flex-shrink: 0; }
+    .input-wrap input {
+      width: 100%; height: 100%;
+      background: transparent; border: none; outline: none;
+      color: #f1f5f9; font-size: 16px; padding-right: 14px;
+    }
+    .input-wrap input::placeholder { color: #4b5563; }
+    .password-toggle {
+      background: none; border: none;
+      color: #6b7280; font-size: 20px;
+      padding: 0 16px; cursor: pointer;
+      touch-action: manipulation;
+    }
+    .login-btn {
+      width: 100%; height: 60px;
+      border: none; border-radius: 22px;
+      background: linear-gradient(100deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      font-weight: 800; font-size: 16px;
+      letter-spacing: 0.4px;
+      box-shadow: 0 16px 40px rgba(139, 92, 246, 0.2), inset 0 1px rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s;
+      touch-action: manipulation;
+      will-change: transform;
+    }
+    .login-btn:active { transform: scale(0.97); }
+    .login-btn:disabled { opacity: 0.7; transform: scale(0.98); }
+    .autopaste-btn {
+      width: 100%; height: 52px;
+      border: 1px solid rgba(251, 189, 36, 0.15);
+      border-radius: 18px;
+      background: rgba(251, 189, 36, 0.03);
+      color: #fbbf24;
+      font-weight: 700; font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s, border 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      will-change: transform;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-top: 10px;
+    }
+    .autopaste-btn:hover { background: rgba(251, 189, 36, 0.06); border-color: rgba(251, 189, 36, 0.25); }
+    .autopaste-btn:active { transform: scale(0.97); }
+    .autopaste-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .telegram-section {
+      background: rgba(139, 92, 246, 0.02);
+      border: 1px solid rgba(139, 92, 246, 0.04);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      transition: border 0.2s;
+    }
+    .telegram-section:hover { border-color: rgba(139, 92, 246, 0.10); }
+    .telegram-section .tg-title { font-weight: 700; color: #a5b4fc; font-size: 14px; margin-bottom: 4px; }
+    .telegram-section .tg-text { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
+    .telegram-section .tg-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #0b1120;
+      font-weight: 700; font-size: 13px;
+      border: none; border-radius: 30px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+      text-decoration: none;
+      will-change: transform;
+    }
+    .telegram-section .tg-btn:active { transform: scale(0.96); }
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px 0;
+      color: #4b5563;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    .login-footer .highlight { color: #fbbf24; }
+    .dashboard { display: none; margin-top: 4px; }
+    .user-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(139, 92, 246, 0.04);
+      border-radius: 60px;
+      padding: 10px 18px 10px 16px;
+      border: 1px solid rgba(139, 92, 246, 0.06);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.02);
+      margin-bottom: 20px;
+      transition: box-shadow 0.3s;
+    }
+    .user-badge .phone {
+      font-weight: 700;
+      color: #34d399;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .user-badge .phone::before { content: "👤"; font-size: 16px; }
+    .user-badge .balance {
+      font-weight: 800;
+      font-size: 18px;
+      color: #fbbf24;
+      background: rgba(251, 189, 36, 0.04);
+      padding: 4px 18px;
+      border-radius: 40px;
+      border: 1px solid rgba(251, 189, 36, 0.04);
+    }
+    .save-number-panel {
+      background: rgba(139, 92, 246, 0.02);
+      border: 1px solid rgba(139, 92, 246, 0.04);
+      border-radius: 24px;
+      padding: 16px 18px;
+      margin-top: 6px;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    .save-number-panel.hidden-panel { display: none !important; }
+    .save-number-panel .title {
+      font-weight: 700;
+      color: #a5b4fc;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .save-number-panel .title .status-badge {
+      font-size: 11px;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 2px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    .save-number-panel .input-group { display: flex; gap: 8px; }
+    .save-number-panel .input-group input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .save-number-panel .input-group input:focus {
+      border-color: rgba(139, 92, 246, 0.10);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.01), inset 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .save-number-panel .input-group .save-btn {
+      padding: 10px 18px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      border: none;
+      border-radius: 16px;
+      color: #0b1120;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(251, 189, 36, 0.08);
+      will-change: transform;
+    }
+    .save-number-panel .input-group .save-btn:active { transform: scale(0.96); }
+    .save-number-panel .status-text { margin-top: 8px; font-size: 11px; color: #6b7280; }
+    .save-number-panel .number-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .number-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px 4px 10px;
+      background: rgba(139, 92, 246, 0.04);
+      border-radius: 20px;
+      border: 1px solid rgba(139, 92, 246, 0.04);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .number-item .num { color: #f1f5f9; }
+    .btn-auto-save-ref {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, #fb7185, #e11d48);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+      margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(251, 113, 133, 0.08);
+      will-change: transform;
+    }
+    .btn-auto-save-ref:active { transform: scale(0.96); }
+    .btn-auto-save-ref:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    #dynamicContent { margin-bottom: 6px; transition: all 0.3s ease; order: -1; }
+    .dashboard-content-wrapper { display: flex; flex-direction: column; }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+      transition: gap 0.2s;
+    }
+    /* Hide the dashboard options while an option panel is open.
+       The options return exactly as before when Close is pressed. */
+    .menu-grid.options-hidden {
+      display: none !important;
+    }
+    .menu-item {
+      background: rgba(18, 24, 40, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 20px;
+      padding: 16px 6px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, border 0.25s, box-shadow 0.25s, background 0.2s;
+      touch-action: manipulation;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+      will-change: transform, border, box-shadow, background;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.03), transparent 60%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .menu-item:hover::before { opacity: 1; }
+    .menu-item:active { transform: scale(0.94); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25); }
+    .menu-item:hover {
+      border-color: rgba(139, 92, 246, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+    .menu-item .icon { font-size: 26px; display: block; margin-bottom: 2px; transition: filter 0.3s; }
+    .menu-item .title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+    }
+    .menu-item .desc {
+      font-size: 8px;
+      color: #4b5563;
+      margin-top: 1px;
+      letter-spacing: 0.2px;
+    }
+    .menu-item.deposit-item { border-color: rgba(52, 211, 153, 0.04); }
+    .menu-item.deposit-item:hover { border-color: rgba(52, 211, 153, 0.10); }
+    .menu-item.withdraw-item { border-color: rgba(251, 189, 36, 0.04); }
+    .menu-item.withdraw-item:hover { border-color: rgba(251, 189, 36, 0.10); }
+    .menu-item.card-item { border-color: rgba(139, 92, 246, 0.03); }
+    .menu-item.card-item:hover { border-color: rgba(139, 92, 246, 0.08); }
+    .menu-item.auto-claim {
+      border-color: rgba(251, 189, 36, 0.04);
+      animation: pulseGold 2.8s infinite;
+    }
+    @keyframes pulseGold {
+      0%, 100% { box-shadow: 0 4px 24px rgba(251, 189, 36, 0.005); }
+      50% { box-shadow: 0 4px 40px rgba(251, 189, 36, 0.02); }
+    }
+    .menu-item.logout-item { border-color: rgba(251, 113, 133, 0.03); }
+    .menu-item.logout-item:hover { border-color: rgba(251, 113, 133, 0.08); }
+    .menu-item.refer-item { border-color: rgba(139, 92, 246, 0.03); }
+    .menu-item.refer-item:hover { border-color: rgba(139, 92, 246, 0.08); }
+    .menu-item.active-option {
+      border-color: rgba(139, 92, 246, 0.2);
+      background: rgba(139, 92, 246, 0.03);
+      box-shadow: 0 8px 40px rgba(139, 92, 246, 0.01), inset 0 0 40px rgba(139, 92, 246, 0.005);
+    }
+    .dynamic-card {
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 24px;
+      padding: 18px;
+      margin-top: 6px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+      animation: fadeUp 0.3s ease;
+      will-change: transform, opacity;
+    }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(10px) scale(0.98); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .dynamic-card .title {
+      font-weight: 700;
+      color: #a5b4fc;
+      font-size: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-close-panel {
+      background: rgba(255, 255, 255, 0.02);
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      padding: 4px 14px;
+      font-size: 11px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      touch-action: manipulation;
+      will-change: transform;
+    }
+    .btn-close-panel:active { transform: scale(0.94); }
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .amount-btn {
+      padding: 10px 4px;
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.15s, border 0.2s, background 0.2s, box-shadow 0.2s;
+      touch-action: manipulation;
+      will-change: transform;
+    }
+    .amount-btn:active { transform: scale(0.95); }
+    .amount-btn.active {
+      border-color: #34d399;
+      background: rgba(52, 211, 153, 0.03);
+      color: #34d399;
+      box-shadow: 0 0 30px rgba(52, 211, 153, 0.01);
+    }
+    .amount-btn.custom-amount-btn {
+      border-color: rgba(251, 189, 36, 0.06);
+      color: #fbbf24;
+    }
+    .amount-btn.custom-amount-btn.active {
+      border-color: #fbbf24;
+      background: rgba(251, 189, 36, 0.03);
+    }
+    .payment-method {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      margin-bottom: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: border 0.2s, background 0.2s;
+      touch-action: manipulation;
+      font-size: 12px;
+      will-change: border, background;
+    }
+    .payment-method.selected {
+      border-color: #34d399;
+      background: rgba(52, 211, 153, 0.02);
+      box-shadow: 0 0 30px rgba(52, 211, 153, 0.005);
+    }
+    .payment-method .pm-name { color: #e2e8f0; font-weight: 500; }
+    .payment-method .pm-desc { color: #6b7280; font-size: 10px; }
+    .btn-sm {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      touch-action: manipulation;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      will-change: transform;
+    }
+    .btn-sm:active { transform: scale(0.95); }
+    .btn-block { width: 100%; }
+    .btn-deposit {
+      background: linear-gradient(135deg, #34d399, #059669);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(52, 211, 153, 0.08);
+    }
+    .btn-deposit:hover { box-shadow: 0 6px 32px rgba(52, 211, 153, 0.12); }
+    .btn-withdraw {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #0b1120;
+      box-shadow: 0 4px 24px rgba(251, 189, 36, 0.08);
+    }
+    .btn-withdraw:hover { box-shadow: 0 6px 32px rgba(251, 189, 36, 0.12); }
+    .btn-card-add {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(139, 92, 246, 0.08);
+    }
+    .btn-card-add:hover { box-shadow: 0 6px 32px rgba(139, 92, 246, 0.12); }
+    .btn-success { background: #059669; color: #fff; box-shadow: 0 4px 24px rgba(5, 150, 105, 0.08); }
+    .btn-warning { background: #fbbf24; color: #0b1120; box-shadow: 0 4px 24px rgba(251, 189, 36, 0.08); }
+    .btn-primary { background: #6d28d9; color: #fff; box-shadow: 0 4px 24px rgba(109, 40, 217, 0.08); }
+    .btn-refer { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0b1120; box-shadow: 0 4px 24px rgba(251, 189, 36, 0.08); }
+    .btn-outline { background: transparent; border: 1px solid rgba(255, 255, 255, 0.03); color: #94a3b8; }
+    .balance-info { font-size: 12px; color: #94a3b8; text-align: center; padding: 4px 0 8px; }
+    .balance-info span { color: #34d399; font-weight: 700; }
+    .input-group { margin-bottom: 10px; }
+    .input-group label {
+      display: block;
+      color: #6b7280;
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      letter-spacing: 0.3px;
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+      will-change: border, box-shadow;
+    }
+    .input-row input:focus {
+      border-color: rgba(52, 211, 153, 0.08);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.005), inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .btn-camera {
+      padding: 10px 14px;
+      background: rgba(139, 92, 246, 0.10);
+      border: 1px solid rgba(139, 92, 246, 0.08);
+      border-radius: 16px;
+      color: #a5b4fc;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      touch-action: manipulation;
+      will-change: transform;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-camera:active { transform: scale(0.94); }
+    .btn-camera:hover { background: rgba(139, 92, 246, 0.15); }
+    .btn-camera:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(8, 12, 26, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      color: #e2e8f0;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+      will-change: border, box-shadow;
+    }
+    .input-group input:focus {
+      border-color: rgba(52, 211, 153, 0.08);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.005), inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .mt-10 { margin-top: 10px; }
+    .mb-10 { margin-bottom: 10px; }
+    .text-center { text-align: center; }
+    .flex-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .game-result { background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 16px; font-size: 11px; margin-top: 8px; }
+    .game-result .ok { color: #34d399; }
+    .refer-user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+      font-size: 12px;
+    }
+    .refer-user-item .user-phone { color: #e2e8f0; font-weight: 500; }
+    .refer-user-item .user-time { color: #6b7280; font-size: 10px; }
+    .refer-user-item .user-status { color: #34d399; font-size: 10px; }
+    @media (max-width: 440px) {
+      .page { padding: 0 4px; }
+      .glass { padding: 18px 12px; border-radius: 32px; }
+      .menu-grid { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+      .amount-grid { grid-template-columns: repeat(3, 1fr); }
+      .exit-popup, .logout-confirm-popup { padding: 24px 16px 20px; }
+      .exit-popup .popup-title, .logout-confirm-popup .popup-title { font-size: 19px; }
+      .save-number-panel .input-group { flex-direction: column; }
+      .save-number-panel .input-group .save-btn { width: 100%; }
+      .welcome-text .sub-title { font-size: 22px; }
+      .user-badge { padding: 8px 12px; }
+      .user-badge .balance { font-size: 15px; padding: 3px 14px; }
+      .menu-item .icon { font-size: 22px; }
+      .menu-item .title { font-size: 10px; }
+    }
+    @media (max-width: 380px) {
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+    }
+  
+/* ===== BHAU LOTTERY DASHBOARD V2 — DASHBOARD ONLY ===== */
+#dashboard{
+  margin-top:4px;
+}
+#dashboard .user-badge{
+  min-height:112px;
+  padding:16px 20px;
+  border-radius:27px;
+  background:linear-gradient(135deg,rgba(39,15,72,.72),rgba(8,7,25,.92));
+  border:1px solid rgba(178,85,255,.65);
+  box-shadow:0 0 25px rgba(126,38,255,.18),inset 0 0 20px rgba(255,255,255,.025);
+  position:relative;
+  overflow:hidden;
+}
+#dashboard .user-badge:before{
+  content:"";
+  position:absolute;
+  width:180px;height:180px;border-radius:50%;
+  left:-80px;top:-100px;
+  background:rgba(168,70,255,.18);
+  filter:blur(35px);
+  pointer-events:none;
+}
+#dashboard .user-badge .phone{
+  font-size:18px;
+  font-weight:900;
+  color:#fff;
+}
+#dashboard .user-badge .phone::before{content:"👤";font-size:30px;margin-right:10px}
+#dashboard .user-badge .balance{
+  margin-top:7px;
+  padding:0;
+  background:none;
+  border:0;
+  color:#aaa7bd;
+  font-size:15px;
+}
+#dashboard .user-badge .balance:before{content:"💰 ";font-size:17px}
+#dashboard .user-badge .balance span{
+  color:#ffd21c;
+  font-size:18px;
+  font-weight:900;
+}
+#dashboard .user-badge:after{
+  content:"";
+  position:absolute;
+  right:20px;
+  top:27px;
+  font-size:44px;
+  filter:drop-shadow(0 0 10px #a957ff);
+}
 
-        .status-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .status-item {
-            flex: 1;
-            min-width: 80px;
-            text-align: center;
-            padding: 6px;
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-        }
-        .status-item .label { font-size: 9px; text-transform: uppercase; color: #888; letter-spacing: 0.5px; }
-        .status-item .value { font-size: 14px; font-weight: 700; margin-top: 2px; }
-        .status-item .value.green { color: #4caf50; }
-        .status-item .value.gold { color: #ffd700; }
-        .status-item .value.blue { color: #42a5f5; }
-        .status-item .value.red { color: #ef5350; }
-        .status-item .value.purple { color: #ab47bc; }
-        .status-item .value.cyan { color: #26c6da; }
-        .status-item .value.orange { color: #ff9800; }
+/* Main dashboard header is visible ONLY on the main dashboard.
+   When any menu, transaction history, game, deposit, withdrawal, or other panel
+   is open, hide the entire phone + balance bar. */
+#dashboard.menu-open .user-badge{display:none!important}
 
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 600; color: #ccc; margin-bottom: 4px; }
-        .form-group label .badge {
-            background: rgba(255,215,0,0.2);
-            color: #ffd700;
-            padding: 1px 8px;
-            border-radius: 20px;
-            font-size: 9px;
-            margin-left: 6px;
-        }
-        .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
-        .form-row .form-group { flex: 1; min-width: 120px; }
+#dashboard .save-number-panel{display:none!important}
+#dashboard .dashboard-content-wrapper{display:block}
+#dashboard #dynamicContent{margin-bottom:14px}
+#dashboard .menu-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+#dashboard .menu-item{
+  min-height:235px;
+  border-radius:23px;
+  padding:15px 9px 13px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  text-align:center;
+  background:linear-gradient(145deg,rgba(24,20,48,.95),rgba(5,6,18,.97));
+  position:relative;
+  overflow:hidden;
+  border-width:1px;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+#dashboard .menu-item:before{
+  content:"";
+  position:absolute;
+  width:110px;height:110px;border-radius:50%;
+  top:10px;left:50%;
+  transform:translateX(-50%);
+  filter:blur(40px);
+  opacity:.18;
+  pointer-events:none;
+}
+#dashboard .menu-item:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.035),transparent 45%);
+  pointer-events:none;
+}
+#dashboard .menu-item:active{transform:scale(.97)}
+#dashboard .menu-item .icon{
+  position:relative;
+  z-index:1;
+  font-size:55px;
+  display:block;
+  margin-top:5px;
+  filter:drop-shadow(0 0 10px rgba(255,255,255,.22));
+}
+#dashboard .menu-item .title{
+  position:relative;
+  z-index:1;
+  font-size:17px;
+  font-weight:900;
+  color:#fff;
+  white-space:nowrap;
+}
+#dashboard .menu-item .desc{
+  position:relative;
+  z-index:1;
+  font-size:12px;
+  color:#b4afc6;
+  margin-top:6px;
+  line-height:1.25;
+}
+#dashboard .menu-item .icon:after{
+  content:"";
+}
+#dashboard .menu-item[data-action="games"]{
+  border-color:#a63dff;
+  box-shadow:0 0 18px rgba(170,50,255,.14);
+}
+#dashboard .menu-item[data-action="games"]:before{background:#a42dff}
+#dashboard .menu-item[data-action="limbo"]{border-color:rgba(124,58,237,.12)}
+#dashboard .menu-item[data-action="limbo"]:before{background:#7c3aed}
+#dashboard .menu-item[data-action="deposit"]{
+  border-color:#ffca00;
+  box-shadow:0 0 18px rgba(255,190,0,.12);
+}
+#dashboard .menu-item[data-action="deposit"]:before{background:#ffb300}
+#dashboard .menu-item[data-action="withdraw"]{
+  border-color:#00e5e8;
+  box-shadow:0 0 18px rgba(0,220,230,.12);
+}
+#dashboard .menu-item[data-action="withdraw"]:before{background:#00e5e8}
+#dashboard .menu-item[data-action="addcard"]{
+  border-color:#ff28b6;
+  box-shadow:0 0 18px rgba(255,20,180,.13);
+}
+#dashboard .menu-item[data-action="addcard"]:before{background:#ff159f}
+#dashboard .menu-item[data-action="autoclaim"]{
+  border-color:#078cff;
+  box-shadow:0 0 18px rgba(0,100,255,.13);
+}
+#dashboard .menu-item[data-action="autoclaim"]:before{background:#008cff}
+#dashboard .menu-item[data-action="balance"]{
+  border-color:#ff9d00;
+  box-shadow:0 0 18px rgba(255,100,0,.13);
+}
+#dashboard .menu-item[data-action="balance"]:before{background:#ff7300}
 
-        select, input {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        select:focus, input:focus {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255,215,0,0.15);
-            background: rgba(255,255,255,0.1);
-        }
-        select option { background: #1a1a3e; color: #fff; }
+#dashboard .dashboard-action-btn{
+  position:relative;
+  z-index:2;
+  width:92%;
+  padding:10px 4px;
+  border-radius:25px;
+  background:rgba(255,255,255,.035);
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.12);
+}
+#dashboard .menu-item[data-action="games"] .dashboard-action-btn{border-color:#ad43ff}
+#dashboard .menu-item[data-action="limbo"] .dashboard-action-btn{border-color:#7c3aed}
+#dashboard .menu-item[data-action="deposit"] .dashboard-action-btn{border-color:#ffc400}
+#dashboard .menu-item[data-action="withdraw"] .dashboard-action-btn{border-color:#00e5e8}
+#dashboard .menu-item[data-action="addcard"] .dashboard-action-btn{border-color:#ff249f}
+#dashboard .menu-item[data-action="autoclaim"] .dashboard-action-btn{border-color:#078cff}
+#dashboard .menu-item[data-action="balance"] .dashboard-action-btn{border-color:#ff9d00}
 
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex: 1;
-            min-width: 100px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary {
-            background: linear-gradient(135deg, #ffd700, #f57c00);
-            color: #1a1a2e;
-        }
-        .btn-primary:hover { box-shadow: 0 8px 30px rgba(255,215,0,0.3); transform: translateY(-2px); }
-        .btn-danger {
-            background: linear-gradient(135deg, #ef5350, #c62828);
-            color: #fff;
-        }
-        .btn-danger:hover { box-shadow: 0 8px 30px rgba(239,83,80,0.3); transform: translateY(-2px); }
-        .btn-success {
-            background: linear-gradient(135deg, #4caf50, #2e7d32);
-            color: #fff;
-        }
-        .btn-success:hover { box-shadow: 0 8px 30px rgba(76,175,80,0.3); transform: translateY(-2px); }
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            color: #ccc;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-        .btn-auto {
-            background: linear-gradient(135deg, #ab47bc, #6a1b9a);
-            color: #fff;
-        }
-        .btn-auto:hover { box-shadow: 0 8px 30px rgba(171,71,188,0.3); transform: translateY(-2px); }
-        .btn-test {
-            background: linear-gradient(135deg, #ff6b6b, #c0392b);
-            color: #fff;
-            flex: 0.5;
-            min-width: 80px;
-        }
-        .btn-test:hover { box-shadow: 0 8px 30px rgba(255,107,107,0.3); transform: translateY(-2px); }
+#dashboard .dashboard-logout{
+  margin-top:15px;
+  min-height:95px;
+  border-radius:25px;
+  border:1px solid #ff3e32;
+  background:linear-gradient(135deg,rgba(54,16,23,.75),rgba(8,7,17,.95));
+  box-shadow:0 0 20px rgba(255,40,30,.12);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:15px 17px;
+}
+#dashboard .dashboard-logout-left{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+#dashboard .dashboard-logout-icon{
+  font-size:43px;
+  filter:drop-shadow(0 0 8px #ff3b2f);
+}
+#dashboard .dashboard-logout-title{
+  font-size:20px;
+  font-weight:900;
+  color:#fff;
+}
+#dashboard .dashboard-logout-sub{
+  margin-top:5px;
+  font-size:12px;
+  color:#a9a4b5;
+}
+#dashboard .dashboard-logout-btn{
+  border:1px solid #ff4237;
+  border-radius:25px;
+  padding:11px 14px;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  background:linear-gradient(135deg,#7d1515,#31090d);
+  box-shadow:0 0 14px rgba(255,40,30,.2);
+  cursor:pointer;
+}
+#dashboard .dashboard-footer{
+  margin-top:20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  color:#a9a3c5;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+}
+#dashboard .dashboard-footer-item{text-align:center}
+#dashboard .dashboard-footer-icon{
+  display:block;
+  font-size:21px;
+  margin-bottom:4px;
+}
+@media(max-width:440px){
+  #dashboard .menu-grid{grid-template-columns:repeat(3,1fr);gap:9px}
+  #dashboard .menu-item{min-height:220px;padding:13px 6px}
+  #dashboard .menu-item .icon{font-size:47px}
+  #dashboard .menu-item .title{font-size:14px}
+  #dashboard .menu-item .desc{font-size:10px}
+  #dashboard .dashboard-action-btn{font-size:9px;padding:9px 2px}
+  #dashboard .user-badge{padding:14px}
+  #dashboard .user-badge .phone{font-size:15px}
+  #dashboard .user-badge:after{font-size:34px;right:14px}
+  #dashboard .dashboard-logout{padding:12px}
+  #dashboard .dashboard-logout-title{font-size:17px}
+  #dashboard .dashboard-logout-btn{padding:10px 9px;font-size:9px}
+}
+@media(max-width:330px){
+  #dashboard .menu-grid{grid-template-columns:1fr 1fr}
+  #dashboard .menu-item{min-height:205px}
+}
 
-        .console {
-            background: #0a0a1a;
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 15px;
-            max-height: 350px;
-            overflow-y: auto;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 11px;
-            border: 1px solid rgba(255,255,255,0.06);
-            position: relative;
-        }
-        .console .log-line { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.03); word-break: break-all; }
-        .console .log-line .time { color: #666; margin-right: 8px; }
-        .console .log-line .msg { color: #ccc; }
-        .console .log-line .msg.green { color: #4caf50; }
-        .console .log-line .msg.gold { color: #ffd700; }
-        .console .log-line .msg.blue { color: #42a5f5; }
-        .console .log-line .msg.red { color: #ef5350; }
-        .console .log-line .msg.purple { color: #ab47bc; }
-        .console .log-line .msg.cyan { color: #26c6da; }
-        .console .log-line .msg.orange { color: #ff9800; }
-        .console .log-line .msg.magenta { color: #ff6bcd; }
-        .console::-webkit-scrollbar { width: 5px; }
-        .console::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-        .console::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.3); border-radius: 10px; }
-        .console .clear-log {
-            position: sticky;
-            top: 0;
-            background: #0a0a1a;
-            padding: 4px 0;
-            display: flex;
-            justify-content: flex-end;
-            z-index: 10;
-        }
-        .console .clear-log button {
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: #888;
-            padding: 3px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 10px;
-        }
-        .console .clear-log button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
-        .progress-container { margin-top: 12px; display: none; }
-        .progress-container.active { display: block; }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .progress-bar .fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ffd700, #ff8c00);
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #888;
-            margin-top: 4px;
-        }
 
-        .toggle-group {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #aaa;
-            cursor: pointer;
-        }
-        .toggle-label input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: #ffd700;
-            cursor: pointer;
-        }
+/* ===== SMART CALCULATOR ===== */
+#dashboard .menu-item[data-action="smartcalc"]{border-color:#34d399;box-shadow:0 0 18px rgba(52,211,153,.13)}
+#dashboard .menu-item[data-action="smartcalc"]:before{background:#34d399}
+#dashboard .menu-item[data-action="smartcalc"] .dashboard-action-btn{border-color:#34d399}
+.smart-calc-shell .smart-calc-hero{padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(139,92,246,.06));border:1px solid rgba(52,211,153,.12);margin-bottom:12px;color:#cbd5e1;font-size:12px;line-height:1.5}
+.smart-calc-shell .smart-calc-result{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.smart-calc-shell .calc-stat{padding:11px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04)}
+.smart-calc-shell .calc-stat span{display:block;color:#7c879e;font-size:10px;font-weight:700;margin-bottom:4px}
+.smart-calc-shell .calc-stat strong{font-size:15px;color:#f1f5f9}
+.smart-calc-shell .calc-stat.highlight{grid-column:1/-1;background:linear-gradient(135deg,rgba(251,191,36,.16),rgba(245,158,11,.08));border-color:rgba(251,191,36,.28);text-align:center}
+.smart-calc-shell .calc-stat.highlight strong{font-size:28px;color:#fbbf24}
+.smart-calc-shell .calc-note{margin-top:10px;color:#718096;font-size:10px;text-align:center}
+/* Clean Smart Calculator result: calculations stay in JavaScript, only the two useful results are shown. */
+.smart-calc-shell.is-calculated .smart-calc-hero,
+.smart-calc-shell.is-calculated .input-group,
+.smart-calc-shell.is-calculated #smartCalcBtn{display:none!important}
+.smart-calc-shell.is-calculated .smart-calc-result{grid-template-columns:1fr;gap:14px;margin-top:18px}
+.smart-calc-shell.is-calculated .calc-stat{padding:18px;border-radius:20px;text-align:center;background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.08)}
+.smart-calc-shell.is-calculated .calc-stat span{font-size:12px;letter-spacing:.7px;margin-bottom:8px}
+.smart-calc-shell.is-calculated .calc-stat strong{font-size:30px;line-height:1.1}
+.smart-calc-shell.is-calculated .calc-stat.recommended{background:linear-gradient(135deg,rgba(16,185,129,.20),rgba(52,211,153,.08));border-color:rgba(52,211,153,.42);box-shadow:0 8px 26px rgba(16,185,129,.10)}
+.smart-calc-shell.is-calculated .calc-stat.recommended span{color:#86efac}
+.smart-calc-shell.is-calculated .calc-stat.recommended strong{color:#34d399;font-size:34px}
+.smart-calc-shell.is-calculated .calc-stat.highlight{grid-column:auto;padding:22px;background:linear-gradient(135deg,rgba(251,191,36,.24),rgba(245,158,11,.10));border-color:rgba(251,191,36,.50);box-shadow:0 10px 32px rgba(245,158,11,.12)}
+.smart-calc-shell.is-calculated .calc-stat.highlight span{color:#fde68a;font-size:13px}
+.smart-calc-shell.is-calculated .calc-stat.highlight strong{font-size:40px;color:#fbbf24}
+@media(max-width:380px){.smart-calc-shell .smart-calc-result{grid-template-columns:1fr}.smart-calc-shell .calc-stat.highlight{grid-column:auto}}
 
-        .port-status { font-size: 11px; margin-top: 4px; color: #888; }
-        .port-status.connected { color: #4caf50; }
-        .port-status.disconnected { color: #ef5350; }
-        .port-status.warning { color: #ffd700; }
-        .port-status.info { color: #42a5f5; }
+/* ===== DASHBOARD INTERACTION / CLICK TRANSITIONS ===== */
+#dashboard .menu-item,
+#dashboard .dashboard-action-btn,
+#dashboard .dashboard-logout-btn{
+  -webkit-tap-highlight-color:transparent;
+  transform:translateZ(0);
+}
+#dashboard .menu-item{
+  cursor:pointer;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease,filter .22s ease;
+}
+#dashboard .menu-item.is-pressed{
+  transform:scale(.94);
+  filter:brightness(1.28);
+  transition-duration:.09s;
+}
+#dashboard .menu-item.is-active-glow{
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 28px rgba(160,80,255,.22),inset 0 0 24px rgba(255,255,255,.035);
+}
+#dashboard .dashboard-action-btn,
+#dashboard .dashboard-logout-btn{
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+#dashboard .dashboard-action-btn:active,
+#dashboard .dashboard-logout-btn:active{transform:scale(.95);filter:brightness(1.25)}
+#dashboard #dynamicContent{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  transition:opacity .22s ease,transform .22s ease;
+}
+#dashboard #dynamicContent.panel-enter{animation:dashboardPanelIn .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes dashboardPanelIn{
+  from{opacity:0;transform:translateY(12px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+#dashboard .menu-item[data-action="transactions"]{border-color:#ff7b2f;box-shadow:0 0 18px rgba(255,100,40,.11)}
+#dashboard .menu-item[data-action="transactions"]:before{background:#ff7b2f}
+#dashboard .menu-item[data-action="refer"]{border-color:#8b5cf6;box-shadow:0 0 18px rgba(139,92,246,.13)}
+#dashboard .menu-item[data-action="refer"]:before{background:#8b5cf6}
+#dashboard .menu-item[data-action="logout"]{border-color:#ff3e32;box-shadow:0 0 18px rgba(255,40,30,.12)}
+#dashboard .menu-item[data-action="logout"]:before{background:#ff3e32}
+#dashboard .menu-item[data-action="transactions"] .dashboard-action-btn{border-color:#ff7b2f}
+#dashboard .menu-item[data-action="refer"] .dashboard-action-btn{border-color:#8b5cf6}
+#dashboard .menu-item[data-action="logout"] .dashboard-action-btn{border-color:#ff4237}
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid rgba(255,215,0,0.3);
-            z-index: 999;
-            display: none;
-            max-width: 90%;
-            text-align: center;
-        }
-        .toast.show { display: block; animation: slideUp 0.4s ease; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
 
-        .port-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-        .port-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .port-indicator.online { background: #4caf50; box-shadow: 0 0 10px rgba(76,175,80,0.5); }
-        .port-indicator.offline { background: #ef5350; box-shadow: 0 0 10px rgba(239,83,80,0.5); }
-        .port-indicator.scanning { background: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.5); animation: pulse 0.8s ease-in-out infinite; }
-        .port-indicator.connected { background: #4caf50; box-shadow: 0 0 10px rgba(76,175,80,0.5); animation: pulse 1.5s ease-in-out infinite; }
-        .port-indicator.toggling { background: #ff6b6b; box-shadow: 0 0 10px rgba(255,107,107,0.5); animation: pulse 0.3s ease-in-out infinite; }
+/* ===== AUTO LOGIN NUMBERS — VISIBLE DASHBOARD WIDGET ===== */
+#dashboard .save-number-panel{
+  display:block!important;
+  background:linear-gradient(145deg,rgba(24,20,48,.96),rgba(5,6,18,.98));
+  border:1px solid rgba(139,92,246,.16);
+  border-radius:24px;
+  padding:16px 18px;
+  margin-top:18px;
+  margin-bottom:14px;
+  box-shadow:0 12px 38px rgba(0,0,0,.22),inset 0 0 25px rgba(255,255,255,.012);
+  position:relative;
+  overflow:hidden;
+}
+#dashboard .save-number-panel:before{
+  content:"";
+  position:absolute;
+  width:150px;height:150px;
+  border-radius:50%;
+  left:-80px;top:-95px;
+  background:rgba(116,67,255,.14);
+  filter:blur(34px);
+  pointer-events:none;
+}
+#dashboard .save-number-panel.hidden-panel{display:none!important}
+#dashboard .save-number-panel .title,
+#dashboard .save-number-panel .input-group,
+#dashboard .save-number-panel .btn-auto-save-ref,
+#dashboard .save-number-panel .status-text,
+#dashboard .save-number-panel .number-list{position:relative;z-index:1}
+#dashboard .save-number-panel .title{
+  color:#aebcff;
+  font-size:14px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+#dashboard .save-number-panel .title .status-badge{
+  color:#77819d;
+  background:rgba(255,255,255,.025);
+  border-color:rgba(255,255,255,.025);
+  padding:3px 14px;
+}
+#dashboard .save-number-panel .input-group{gap:8px}
+#dashboard .save-number-panel .input-group input{
+  min-width:0;
+  height:40px;
+  padding:10px 14px;
+  border-radius:16px;
+  background:#080c1a;
+  border:1px solid rgba(255,255,255,.035);
+  color:#e2e8f0;
+}
+#dashboard .save-number-panel .input-group .save-btn{
+  height:40px;
+  padding:10px 18px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fbbf24,#f59e0b);
+  box-shadow:0 4px 18px rgba(251,189,36,.10);
+}
+#dashboard .save-number-panel .btn-auto-save-ref{
+  height:40px;
+  padding:10px;
+  margin-top:10px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fb7185,#e11d48);
+  box-shadow:0 5px 20px rgba(251,113,133,.10);
+}
+#dashboard .save-number-panel .btn-auto-save-ref:active,
+#dashboard .save-number-panel .save-btn:active{transform:scale(.97)}
+#dashboard .save-number-panel .status-text{color:#69738b;font-size:11px}
+#dashboard .save-number-panel .number-list{margin-top:9px}
+#dashboard .save-number-panel .number-item{border-color:rgba(139,92,246,.10);background:rgba(139,92,246,.035)}
+@media(max-width:440px){
+  #dashboard .save-number-panel{padding:16px 18px;margin-top:18px}
+  #dashboard .save-number-panel .input-group{display:flex;flex-direction:row}
+  #dashboard .save-number-panel .input-group input{height:40px}
+  #dashboard .save-number-panel .input-group .save-btn{width:auto;height:40px}
+}
+@media(max-width:330px){
+  #dashboard .save-number-panel .input-group{gap:6px}
+  #dashboard .save-number-panel .input-group .save-btn{padding-left:14px;padding-right:14px}
+}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
 
-        @media (max-width: 600px) {
-            .container { padding: 12px; }
-            .header h1 { font-size: 20px; }
-            .status-item { min-width: 60px; padding: 4px; }
-            .status-item .value { font-size: 12px; }
-            .btn { padding: 10px 16px; font-size: 12px; min-width: 80px; }
-            .form-row { flex-direction: column; gap: 8px; }
-            .console { max-height: 200px; font-size: 10px; }
-        }
+/* ===== COMPACT DASHBOARD — FIT ALL OPTIONS ON ONE PAGE ===== */
+#dashboard .menu-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-top:10px;
+}
+#dashboard .menu-item{
+  min-height:154px;
+  height:154px;
+  padding:10px 6px 9px;
+  border-radius:19px;
+}
+#dashboard .menu-item .icon{
+  font-size:38px;
+  line-height:1;
+  margin-top:2px;
+}
+#dashboard .menu-item .title{
+  font-size:12px;
+  line-height:1.1;
+}
+#dashboard .menu-item .desc{
+  font-size:9px;
+  margin-top:4px;
+}
+#dashboard .dashboard-action-btn{
+  width:88%;
+  padding:7px 2px;
+  font-size:8px;
+  line-height:1;
+  border-radius:18px;
+}
+#dashboard .save-number-panel{
+  margin-top:12px;
+  margin-bottom:10px;
+  padding:12px 14px;
+  border-radius:20px;
+}
+#dashboard .save-number-panel .title{
+  font-size:12px;
+  margin-bottom:7px;
+}
+#dashboard .save-number-panel .input-group input{
+  padding:9px 12px!important;
+  font-size:12px!important;
+}
+#dashboard .save-number-panel .input-group .save-btn{
+  padding:8px 14px!important;
+  font-size:11px!important;
+}
+#dashboard .save-number-panel .btn-auto-save-ref{
+  padding:9px!important;
+  font-size:11px!important;
+  margin-top:8px!important;
+}
+#dashboard .dashboard-footer{
+  margin-top:10px;
+  font-size:8px;
+}
+#dashboard .dashboard-footer-icon{
+  font-size:16px;
+  margin-bottom:2px;
+}
+#dashboard .user-badge{
+  min-height:72px;
+  padding:11px 15px;
+}
+#dashboard .user-badge .phone{
+  font-size:14px;
+}
+#dashboard .user-badge .phone::before{
+  font-size:22px;
+  margin-right:7px;
+}
+#dashboard .user-badge .balance{
+  font-size:12px;
+  margin-top:3px;
+}
+#dashboard .user-badge .balance span{
+  font-size:15px;
+}
+#dashboard .user-badge:after{
+  font-size:30px;
+  top:20px;
+  right:14px;
+}
+#dashboard .dashboard-logout{
+  display:none!important;
+}
 
-        .airplane-status {
-            display: inline-block;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        .airplane-status.on {
-            background: rgba(76,175,80,0.2);
-            color: #4caf50;
-            border: 1px solid rgba(76,175,80,0.3);
-        }
-        .airplane-status.off {
-            background: rgba(239,83,80,0.2);
-            color: #ef5350;
-            border: 1px solid rgba(239,83,80,0.3);
-        }
-        .airplane-status.toggling {
-            background: rgba(255,215,0,0.2);
-            color: #ffd700;
-            border: 1px solid rgba(255,215,0,0.3);
-            animation: pulse 0.5s ease-in-out infinite;
-        }
+@media(max-width:440px){
+  #dashboard .menu-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+  #dashboard .menu-item{
+    min-height:145px;
+    height:145px;
+    padding:9px 5px 8px;
+  }
+  #dashboard .menu-item .icon{font-size:34px}
+  #dashboard .menu-item .title{font-size:11px}
+  #dashboard .menu-item .desc{font-size:8px}
+  #dashboard .dashboard-action-btn{
+    width:90%;
+    padding:7px 1px;
+    font-size:7.5px;
+  }
+  #dashboard .save-number-panel{
+    padding:11px 12px;
+  }
+}
+@media(max-width:330px){
+  #dashboard .menu-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  #dashboard .menu-item{
+    min-height:136px;
+    height:136px;
+  }
+  #dashboard .menu-item .icon{font-size:31px}
+  #dashboard .menu-item .title{font-size:10px}
+  #dashboard .menu-item .desc{font-size:7px}
+  #dashboard .dashboard-action-btn{font-size:7px}
+}
 
-        .api-status {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: rgba(255,215,0,0.1);
-            color: #ffd700;
-        }
-        .api-status.error {
-            background: rgba(239,83,80,0.1);
-            color: #ef5350;
-        }
-        .api-status.success {
-            background: rgba(76,175,80,0.1);
-            color: #4caf50;
-        }
-    </style>
+
+/* ===== LIVE 3D DEV CREDIT ===== */
+.login-footer{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  margin-top:20px;
+  padding:10px 14px;
+  border-top:1px solid rgba(255,255,255,.04);
+  letter-spacing:3px;
+  perspective:600px;
+  overflow:hidden;
+}
+.login-footer::before{
+  content:"";
+  position:absolute;
+  width:130px;
+  height:130px;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(255,190,30,.18),transparent 68%);
+  filter:blur(12px);
+  animation:devAura 2.8s ease-in-out infinite;
+  pointer-events:none;
+}
+.login-footer::after{
+  content:"";
+  position:absolute;
+  left:-35%;
+  top:0;
+  width:28%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  transform:skewX(-22deg);
+  animation:devSweep 3.2s linear infinite;
+  pointer-events:none;
+}
+.login-footer .highlight{
+  position:relative;
+  z-index:2;
+  display:inline-block;
+  margin-left:7px;
+  color:#ffd84a;
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:4px;
+  text-shadow:
+    0 1px 0 #8a5a00,
+    0 2px 0 #6b4300,
+    0 3px 0 #3f2600,
+    0 0 8px rgba(255,193,7,.85),
+    0 0 20px rgba(255,165,0,.5);
+  transform:translateZ(18px);
+  animation:devFloat 1.9s ease-in-out infinite;
+}
+.login-footer{
+  color:#9ca3af;
+  font-weight:900;
+  text-shadow:0 1px 0 #000;
+}
+@keyframes devFloat{
+  0%,100%{transform:translateY(0) rotateX(0deg) translateZ(18px)}
+  50%{transform:translateY(-3px) rotateX(7deg) translateZ(25px)}
+}
+@keyframes devAura{
+  0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.85)}
+  50%{opacity:.95;transform:translate(-50%,-50%) scale(1.15)}
+}
+@keyframes devSweep{
+  0%{left:-35%}
+  100%{left:125%}
+}
+
+
+/* ===== DEPOSIT: SCROLL CHANNELS + STICKY 3D ACTION ===== */
+#dashboard .deposit-shell{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  max-height:calc(100vh - 120px);
+}
+#dashboard #paymentMethodsList{
+  max-height:260px;
+  overflow-y:auto;
+  padding:4px 3px 8px 1px;
+  scrollbar-width:thin;
+  overscroll-behavior:contain;
+}
+#dashboard #paymentMethodsList::-webkit-scrollbar{width:5px}
+#dashboard #paymentMethodsList::-webkit-scrollbar-thumb{
+  background:linear-gradient(#8b5cf6,#ec4899);
+  border-radius:20px;
+}
+#dashboard .deposit-action-bar{
+  position:sticky;
+  bottom:0;
+  z-index:20;
+  margin:8px -2px -2px;
+  padding:9px 0 2px;
+  background:linear-gradient(180deg,rgba(12,15,31,0),rgba(12,15,31,.96) 30%);
+  backdrop-filter:blur(8px);
+}
+#dashboard #depositSubmitBtn{
+  min-height:48px;
+  border-radius:16px;
+  border:1px solid rgba(255,205,50,.75)!important;
+  background:linear-gradient(145deg,#ffe36a 0%,#ffbd1a 35%,#f59e0b 68%,#b45309 100%)!important;
+  color:#15100a!important;
+  font-size:14px;
+  font-weight:1000;
+  letter-spacing:.4px;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.65),
+    inset 0 -4px 0 rgba(110,55,0,.38),
+    0 5px 0 #8a4f00,
+    0 10px 22px rgba(245,158,11,.25),
+    0 0 18px rgba(255,196,0,.22);
+  transform:translateY(0);
+  transition:transform .14s,box-shadow .14s,filter .14s;
+}
+#dashboard #depositSubmitBtn::first-letter{font-size:17px}
+#dashboard #depositSubmitBtn:hover{
+  filter:brightness(1.08);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.72),
+    inset 0 -4px 0 rgba(110,55,0,.38),
+    0 5px 0 #8a4f00,
+    0 12px 28px rgba(245,158,11,.35),
+    0 0 24px rgba(255,196,0,.35);
+}
+#dashboard #depositSubmitBtn:active{
+  transform:translateY(4px);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.5),
+    inset 0 -2px 0 rgba(110,55,0,.35),
+    0 1px 0 #8a4f00,
+    0 5px 14px rgba(245,158,11,.22);
+}
+#dashboard .payment-method{
+  cursor:pointer;
+  transition:transform .16s,border-color .16s,box-shadow .16s,background .16s;
+}
+#dashboard .payment-method:active{transform:scale(.985)}
+#dashboard .payment-method.selected{
+  border-color:rgba(255,193,7,.7)!important;
+  box-shadow:0 0 16px rgba(255,193,7,.14),inset 0 0 12px rgba(255,193,7,.04);
+}
+#dashboard .deposit-auto-hint{
+  margin-top:6px;
+  color:#94a3b8;
+  font-size:9px;
+  text-align:center;
+}
+@media(max-width:440px){
+  #dashboard #paymentMethodsList{max-height:230px}
+  #dashboard #depositSubmitBtn{min-height:46px;font-size:13px}
+}
+
+
+/* ===== ADMIN ACCESS ===== */
+.admin-access-btn{
+  width:100%;
+  height:52px;
+  margin-top:12px;
+  border:1px solid rgba(239,68,68,.35);
+  border-radius:18px;
+  background:linear-gradient(135deg,#3b0b16,#17080c);
+  color:#ff8a8a;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.8px;
+  cursor:pointer;
+  box-shadow:0 0 18px rgba(239,68,68,.10),inset 0 1px rgba(255,255,255,.06);
+  transition:transform .15s,filter .2s,box-shadow .2s;
+}
+.admin-access-btn:hover{
+  filter:brightness(1.15);
+  box-shadow:0 0 28px rgba(239,68,68,.22),inset 0 1px rgba(255,255,255,.08);
+}
+.admin-access-btn:active{transform:scale(.97)}
+
+.admin-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.admin-modal.active{display:flex;animation:adminFade .2s ease}
+@keyframes adminFade{from{opacity:0}to{opacity:1}}
+
+.admin-box{
+  width:min(380px,100%);
+  padding:28px 22px 22px;
+  border-radius:28px;
+  text-align:center;
+  background:linear-gradient(145deg,#171226,#080b16);
+  border:1px solid rgba(239,68,68,.35);
+  box-shadow:0 35px 100px rgba(0,0,0,.8),0 0 35px rgba(239,68,68,.10);
+}
+.admin-icon{
+  font-size:42px;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 12px rgba(239,68,68,.45));
+}
+.admin-title{font-size:21px;font-weight:900;color:#fff}
+.admin-sub{font-size:12px;color:#94a3b8;margin:7px 0 18px}
+.admin-input{
+  width:100%;
+  height:52px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#070a12;
+  color:#fff;
+  outline:none;
+  padding:0 15px;
+  font-size:16px;
+  text-align:center;
+}
+.admin-input:focus{
+  border-color:#ef4444;
+  box-shadow:0 0 0 4px rgba(239,68,68,.08);
+}
+.admin-error{
+  min-height:18px;
+  margin-top:9px;
+  color:#fb7185;
+  font-size:12px;
+  font-weight:700;
+}
+.admin-actions{display:flex;gap:9px;margin-top:8px}
+.admin-actions button{
+  flex:1;
+  height:48px;
+  border:0;
+  border-radius:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+.admin-cancel{background:#1b2230;color:#aeb8c8}
+.admin-submit{
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+  color:#fff;
+  box-shadow:0 8px 25px rgba(239,68,68,.18);
+}
+
+
+/* ─── RED PREMIUM PANEL CLOSE BUTTON ───────────────────── */
+.btn-close-panel{
+  background:linear-gradient(135deg,#ff4d5e,#c9142f) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,150,160,.7) !important;
+  border-radius:14px !important;
+  padding:8px 16px !important;
+  font-weight:800 !important;
+  box-shadow:0 4px 14px rgba(220,25,55,.35), inset 0 1px 0 rgba(255,255,255,.2) !important;
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease !important;
+}
+.btn-close-panel:hover{
+  transform:translateY(-1px) scale(1.03) !important;
+  filter:brightness(1.1) !important;
+  box-shadow:0 7px 20px rgba(220,25,55,.48), inset 0 1px 0 rgba(255,255,255,.22) !important;
+}
+.btn-close-panel:active{
+  transform:scale(.96) !important;
+}
+
+
+/* ─── PHONE NUMBER COPY BUTTON ───────────────────────────── */
+#dashboard .user-badge .phone{gap:9px}
+.copy-phone-btn{
+  width:32px;
+  height:32px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  border:1px solid rgba(167,139,250,.55);
+  background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(88,28,135,.42));
+  color:#fff;
+  cursor:pointer;
+  font-size:15px;
+  box-shadow:0 4px 14px rgba(88,28,135,.22), inset 0 1px 0 rgba(255,255,255,.12);
+  transition:transform .18s ease,filter .18s ease,box-shadow .18s ease;
+}
+.copy-phone-btn:hover{
+  transform:translateY(-1px) scale(1.06);
+  filter:brightness(1.12);
+  box-shadow:0 7px 18px rgba(139,92,246,.32);
+}
+.copy-phone-btn:active{transform:scale(.92)}
+
+
+/* ─── GLOBAL SMOOTH INTERACTION ENHANCEMENT ───────────────────────────────
+   Visual-only layer: existing functionality and logic remain untouched. */
+html{
+  scroll-behavior:smooth;
+}
+button,
+.menu-item,
+.amount-btn,
+.payment-method,
+.card-item,
+input,
+select,
+.dynamic-card,
+.user-badge,
+.btn-sm{
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    opacity .18s ease,
+    filter .18s ease,
+    box-shadow .22s ease,
+    border-color .22s ease,
+    background-color .22s ease,
+    background .22s ease !important;
+  -webkit-tap-highlight-color:transparent;
+}
+button:not(:disabled),
+.menu-item,
+.amount-btn,
+.payment-method,
+.card-item{
+  will-change:transform;
+}
+button:not(:disabled):hover,
+.amount-btn:hover,
+.payment-method:hover,
+.card-item:hover{
+  filter:brightness(1.04);
+}
+button:not(:disabled):active,
+.amount-btn:active,
+.payment-method:active,
+.card-item:active{
+  transform:scale(.975) !important;
+}
+input:focus,
+select:focus{
+  transform:translateY(-1px);
+}
+.dynamic-card{
+  animation:smoothPanelIn .26s cubic-bezier(.22,.8,.25,1) both;
+}
+@keyframes smoothPanelIn{
+  from{opacity:0;transform:translateY(7px) scale(.992)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+/* Keep animations comfortable for users who prefer reduced motion. */
+@media (prefers-reduced-motion:reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+
+    .fan-tan-game-shell{margin-top:12px;width:100%;height:min(78vh,760px);min-height:420px;border-radius:18px;overflow:hidden;position:relative;background:#0b1120;border:1px solid rgba(255,255,255,.12);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+    .fan-tan-game-bar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 10px 0 14px;background:rgba(15,23,42,.98);border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:2}.fan-tan-game-title{font-weight:800;font-size:14px}.fan-tan-game-actions{display:flex;align-items:center;gap:8px}.fan-tan-game-close,.fan-tan-game-fullscreen{border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;color:#fff}.fan-tan-game-close{background:#ef4444}.fan-tan-game-fullscreen{background:#2563eb}.fan-tan-game-fullscreen:hover{filter:brightness(1.08)}.fan-tan-game-frame{width:100%;height:calc(100% - 48px);border:0;display:block;background:#fff}.fan-tan-game-loading{position:absolute;left:0;right:0;top:48px;bottom:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1;pointer-events:none}.fan-tan-game-shell.is-loaded .fan-tan-game-loading{display:none}.fan-tan-game-shell:fullscreen,.fan-tan-game-shell:-webkit-full-screen{width:100vw;height:100vh;max-width:none;margin:0;border-radius:0;background:#000}@media(max-width:600px){.fan-tan-game-shell{height:78vh;min-height:360px;border-radius:14px;margin-top:10px}.fan-tan-game-close,.fan-tan-game-fullscreen{padding:7px 10px;font-size:12px}}
+
+
+/* ===== BIG GAME LAUNCH OPTIONS ===== */
+#gameLaunchOptions{
+  gap:16px !important;
+}
+#gameLaunchOptions #launchFanTan,
+#gameLaunchOptions #launchChicken{
+  min-height:100px !important;
+  padding:22px 20px !important;
+  border-radius:22px !important;
+  font-size:22px !important;
+  font-weight:900 !important;
+  letter-spacing:.3px !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.25) !important;
+}
+#gameLaunchOptions #launchFanTan{
+  background:linear-gradient(135deg,#10b981,#059669) !important;
+}
+#gameLaunchOptions #launchChicken{
+  background:linear-gradient(135deg,#fbbf24,#d97706) !important;
+}
+#gameLaunchOptions #launchFanTan:active,
+#gameLaunchOptions #launchChicken:active{
+  transform:scale(.97) !important;
+}
+@media(max-width:440px){
+  #gameLaunchOptions #launchFanTan,
+  #gameLaunchOptions #launchChicken{
+    min-height:90px !important;
+    font-size:19px !important;
+    padding:18px 14px !important;
+  }
+}
+.menu-item.admin-option-off{opacity:.62;cursor:pointer;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body>
+<div class="page">
 
-    <div class="container">
-        <div class="header">
-            <h1>🎯 SANJU REFER PRO</h1>
-            <div class="subtitle">Real Airplane Mode + Auto Referral</div>
-            <div class="developer">👑 Developed by: Sanju</div>
-        </div>
+    <!-- ADMIN PASSWORD MODAL -->
+    <div id="adminModal" class="admin-modal" aria-hidden="true">
+      <div class="admin-box">
+        <div class="admin-icon">🛡️</div>
+        <div class="admin-title">Admin Access</div>
+        <div class="admin-sub">Enter admin password to continue</div>
 
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="label">Game</div>
-                <div class="value gold" id="gameStatus">ANNA</div>
-            </div>
-            <div class="status-item">
-                <div class="label">Accounts</div>
-                <div class="value blue" id="accountCount">0</div>
-            </div>
-            <div class="status-item">
-                <div class="label">Status</div>
-                <div class="value green" id="botStatus">● Ready</div>
-            </div>
-            <div class="status-item">
-                <div class="label">IP Rotations</div>
-                <div class="value purple" id="ipCount">0</div>
-            </div>
-            <div class="status-item">
-                <div class="label">Airplane</div>
-                <div class="value" id="airplaneStatus">
-                    <span class="airplane-status off">● OFF</span>
-                </div>
-            </div>
-            <div class="status-item">
-                <div class="label">API</div>
-                <div class="value orange" id="apiStatus">
-                    <span class="api-status">● Testing</span>
-                </div>
-            </div>
-        </div>
+        <form id="adminForm">
+          <input
+            id="adminPassword"
+            class="admin-input"
+            type="password"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Enter admin password"
+          >
+          <div id="adminError" class="admin-error"></div>
 
-        <div class="form-group">
-            <label>🎮 Select Game</label>
-            <div class="form-row">
-                <div class="form-group" style="flex:2">
-                    <select id="gameSelect">
-                        <option value="ANNA">ANNA LOTTERY</option>
-                        <option value="BHAU">BHAU LOTTERY</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>🔌 Device Connection <span class="badge">Auto Detect</span></label>
-            <div class="form-row">
-                <div class="form-group" style="flex:2">
-                    <select id="comPort" class="port-select">
-                        <option value="">-- Auto Detecting Ports --</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex:0.7">
-                    <button class="btn btn-auto" id="autoDetectBtn" style="padding: 10px 16px; min-width: auto; flex:0; width:100%; font-size:12px;">
-                        🔍 Auto Detect
-                    </button>
-                </div>
-                <div class="form-group" style="flex:0.5">
-                    <button class="btn btn-secondary" id="refreshPortsBtn" style="padding: 10px 16px; min-width: auto; flex:0; width:100%; font-size:12px;">
-                        🔄 Refresh
-                    </button>
-                </div>
-            </div>
-            <div class="port-info">
-                <span class="port-indicator scanning" id="portIndicator"></span>
-                <span class="port-status" id="portStatus">⏳ Auto-detecting available devices...</span>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-row">
-                <div class="form-group" style="flex:1">
-                    <button class="btn btn-test" id="testAirplaneBtn" style="padding: 10px 16px; font-size:12px;">
-                        ✈️ Test Airplane
-                    </button>
-                </div>
-                <div class="form-group" style="flex:1">
-                    <button class="btn btn-success" id="testApiBtn" style="padding: 10px 16px; font-size:12px;">
-                        🌐 Test API
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>📱 Per Batch</label>
-                <input type="number" id="perBatch" value="2" min="1" max="20">
-            </div>
-            <div class="form-group">
-                <label>🔄 Repeats</label>
-                <input type="number" id="repeats" value="1" min="1" max="50">
-            </div>
-            <div class="form-group">
-                <label>🔑 Password</label>
-                <input type="text" id="password" value="Sanju2005">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="toggle-group">
-                <label class="toggle-label">
-                    <input type="checkbox" id="autoRotateIP" checked>
-                    Auto IP Rotate (1 BAR)
-                </label>
-                <label class="toggle-label">
-                    <input type="checkbox" id="sendTelegram" checked>
-                    Send to Telegram
-                </label>
-                <label class="toggle-label">
-                    <input type="checkbox" id="useReferral" checked>
-                    Use Referral Chain
-                </label>
-                <label class="toggle-label">
-                    <input type="checkbox" id="useRealApi" checked>
-                    Use Real API
-                </label>
-            </div>
-        </div>
-
-        <div class="btn-group">
-            <button class="btn btn-primary" id="startBtn">▶ START</button>
-            <button class="btn btn-danger" id="stopBtn" disabled>⏹ STOP</button>
-            <button class="btn btn-secondary" id="clearLogBtn">🗑 Clear</button>
-        </div>
-
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text">
-                <span id="progressLabel">0 / 0</span>
-                <span id="progressPercent">0%</span>
-            </div>
-        </div>
-
-        <div class="console" id="console">
-            <div class="clear-log">
-                <button onclick="clearConsole()">Clear</button>
-            </div>
-            <div id="logContainer">
-                <div class="log-line">
-                    <span class="time">[System]</span>
-                    <span class="msg gold">🚀 Auto Referral System Ready</span>
-                </div>
-                <div class="log-line">
-                    <span class="time">[System]</span>
-                    <span class="msg blue">📱 Click "Auto Detect" to find your device</span>
-                </div>
-                <div class="log-line">
-                    <span class="time">[System]</span>
-                    <span class="msg cyan">✈️ Click "Test Airplane" for real airplane mode</span>
-                </div>
-                <div class="log-line">
-                    <span class="time">[System]</span>
-                    <span class="msg cyan">🌐 Click "Test API" to check SunSMS connection</span>
-                </div>
-            </div>
-        </div>
+          <div class="admin-actions">
+            <button type="button" class="admin-cancel" id="adminCancel">Cancel</button>
+            <button type="submit" class="admin-submit">Unlock →</button>
+          </div>
+        </form>
+      </div>
     </div>
 
-    <div class="toast" id="toast"></div>
-
-    <script>
-        // ============================================================
-        // CONFIGURATION
-        // ============================================================
-        const CONFIG = {
-            TELEGRAM_BOT_TOKEN: "8920269339:AAGRfMBENmN169d7uC3f75EUoJC4lkNSHl4",
-            TELEGRAM_CHAT_ID: "-1003968520042",
-            SUNSMS_API_KEY: "JDXJhk3ITVIWmixZTgzKAuTFxDVNFEGGGR7HKLGM",
-            SUNSMS_BASE_URL: "https://sunsms.xyz/api/stubs/handler_api.php",
-            COUNTRY: "22",
-            OPERATOR: "1",
-            PASSWORD: "Sanju2005"
-        };
-
-        const GAMES = {
-            ANNA: {
-                name: "ANNA LOTTERY",
-                service: "annalottery",
-                api_base: "https://api.annagames.app",
-                api_host: "api.annagames.app",
-                package_id: 1,
-                package_info: "com.lottepro.sambadpro",
-                version_code: "999",
-                channel: "h5",
-                channel_id: "anna",
-                register_channel: "AppShare",
-                platform: "h5",
-                lang: "en_US"
-            },
-            BHAU: {
-                name: "BHAU LOTTERY",
-                service: "bhaulottery",
-                api_base: "https://api.bhaulotterys.com",
-                api_host: "api.bhaulotterys.com",
-                package_id: 2,
-                package_info: "com.resulta.checka",
-                version_code: "999",
-                channel: "h5",
-                channel_id: "bhai",
-                register_channel: "Organic",
-                platform: "h5",
-                lang: "en_US"
-            }
-        };
-
-        // ============================================================
-        // STATE
-        // ============================================================
-        let state = {
-            isRunning: false,
-            shouldStop: false,
-            totalAccounts: 0,
-            ipRotations: 0,
-            currentGame: 'ANNA',
-            selectedPort: null,
-            deviceConnected: false,
-            totalSuccessful: 0,
-            totalFailed: 0,
-            skippedAccounts: [],
-            blockedAccounts: [],
-            referralHistory: [],
-            airplaneState: false,
-            apiWorking: false
-        };
-
-        // ============================================================
-        // DOM REFS
-        // ============================================================
-        const $ = id => document.getElementById(id);
-        const gameSelect = $('gameSelect');
-        const comPort = $('comPort');
-        const refreshPortsBtn = $('refreshPortsBtn');
-        const autoDetectBtn = $('autoDetectBtn');
-        const testAirplaneBtn = $('testAirplaneBtn');
-        const testApiBtn = $('testApiBtn');
-        const portStatus = $('portStatus');
-        const portIndicator = $('portIndicator');
-        const perBatch = $('perBatch');
-        const repeats = $('repeats');
-        const passwordInput = $('password');
-        const startBtn = $('startBtn');
-        const stopBtn = $('stopBtn');
-        const clearLogBtn = $('clearLogBtn');
-        const logContainer = $('logContainer');
-        const consoleDiv = $('console');
-        const gameStatus = $('gameStatus');
-        const accountCount = $('accountCount');
-        const botStatus = $('botStatus');
-        const ipCount = $('ipCount');
-        const airplaneStatus = $('airplaneStatus');
-        const apiStatus = $('apiStatus');
-        const progressContainer = $('progressContainer');
-        const progressFill = $('progressFill');
-        const progressLabel = $('progressLabel');
-        const progressPercent = $('progressPercent');
-        const toastEl = $('toast');
-
-        const autoRotateIP = $('autoRotateIP');
-        const sendTelegram = $('sendTelegram');
-        const useReferral = $('useReferral');
-        const useRealApi = $('useRealApi');
-
-        // ============================================================
-        // UTILITY FUNCTIONS
-        // ============================================================
-        let toastTimeout = null;
-
-        function showToast(message, duration = 3000) {
-            toastEl.textContent = message;
-            toastEl.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toastEl.classList.remove('show');
-            }, duration);
-        }
-
-        function log(message, color = '') {
-            const time = new Date().toLocaleTimeString();
-            const div = document.createElement('div');
-            div.className = 'log-line';
-            div.innerHTML = `<span class="time">[${time}]</span><span class="msg ${color}">${message}</span>`;
-            logContainer.appendChild(div);
-            consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            while (logContainer.children.length > 500) {
-                logContainer.removeChild(logContainer.firstChild);
-            }
-        }
-
-        function clearConsole() {
-            logContainer.innerHTML = '';
-            log('🗑 Console cleared', 'gold');
-        }
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        // ============================================================
-        // REAL AIRPLANE MODE TOGGLE (FIXED)
-        // ============================================================
-        async function toggleAirplaneModeReal() {
-            if (!state.selectedPort) {
-                log('❌ No device connected!', 'red');
-                showToast('Please connect a device first!', 3000);
-                return false;
-            }
-
-            log(`✈️ Toggling REAL Airplane Mode on ${state.selectedPort}...`, 'cyan');
-            
-            airplaneStatus.innerHTML = `<span class="airplane-status toggling">⟳ TOGGLING</span>`;
-            portIndicator.className = 'port-indicator toggling';
-            portStatus.textContent = '⏳ Toggling Airplane Mode...';
-            portStatus.className = 'port-status warning';
-
-            try {
-                let success = false;
-                let method = '';
-
-                // ============================================
-                // METHOD 1: ADB via WebUSB (Android)
-                // ============================================
-                if ('usb' in navigator) {
-                    try {
-                        log('   📱 Method 1: WebUSB ADB...', 'blue');
-                        const devices = await navigator.usb.getDevices();
-                        
-                        if (devices.length > 0) {
-                            const device = devices[0];
-                            await device.open();
-                            await device.selectConfiguration(1);
-                            
-                            // Try to claim ADB interface
-                            const interfaces = device.configuration.interfaces;
-                            for (const iface of interfaces) {
-                                for (const alt of iface.alternates) {
-                                    if (alt.interfaceClass === 0xFF) {
-                                        await device.claimInterface(alt.interfaceNumber);
-                                        log(`   📱 Claimed ADB interface: ${alt.interfaceNumber}`, 'green');
-                                        
-                                        // Send ADB command - Airplane ON
-                                        log('   📱 Sending airplane ON...', 'blue');
-                                        await sleep(2000);
-                                        
-                                        // Send ADB command - Airplane OFF
-                                        log('   📱 Sending airplane OFF...', 'blue');
-                                        await sleep(2000);
-                                        
-                                        success = true;
-                                        method = 'WebUSB ADB';
-                                        break;
-                                    }
-                                }
-                                if (success) break;
-                            }
-                        }
-                    } catch (e) {
-                        log(`   ⚠️ WebUSB ADB error: ${e.message}`, 'yellow');
-                    }
-                }
-
-                // ============================================
-                // METHOD 2: WebSerial AT Commands
-                // ============================================
-                if (!success && 'serial' in navigator) {
-                    try {
-                        log('   📡 Method 2: WebSerial AT...', 'blue');
-                        const ports = await navigator.serial.getPorts();
-                        if (ports.length > 0) {
-                            const port = ports[0];
-                            await port.open({ baudRate: 115200 });
-                            const writer = port.writable.getWriter();
-                            const encoder = new TextEncoder();
-                            
-                            // AT+CFUN=4 (Flight mode ON)
-                            await writer.write(encoder.encode('AT+CFUN=4\r\n'));
-                            log('   📡 AT+CFUN=4 (Airplane ON)', 'green');
-                            await sleep(3000);
-                            
-                            // AT+CFUN=1 (Full functionality)
-                            await writer.write(encoder.encode('AT+CFUN=1\r\n'));
-                            log('   📡 AT+CFUN=1 (Airplane OFF)', 'green');
-                            await sleep(2000);
-                            
-                            writer.releaseLock();
-                            await port.close();
-                            success = true;
-                            method = 'WebSerial AT';
-                        }
-                    } catch (e) {
-                        log(`   ⚠️ WebSerial error: ${e.message}`, 'yellow');
-                    }
-                }
-
-                // ============================================
-                // METHOD 3: ADB over TCP/IP
-                // ============================================
-                if (!success && state.selectedPort && state.selectedPort.includes('.')) {
-                    try {
-                        log(`   🌐 Method 3: ADB over IP (${state.selectedPort})...`, 'blue');
-                        // For ADB over network
-                        log('   ⚠️ ADB over IP requires WebSocket', 'yellow');
-                    } catch (e) {
-                        log(`   ⚠️ Network ADB error: ${e.message}`, 'yellow');
-                    }
-                }
-
-                // ============================================
-                // METHOD 4: SIMULATED (FALLBACK)
-                // ============================================
-                if (!success) {
-                    log('   📤 FALLBACK: Simulated toggle', 'yellow');
-                    log('   📤 Airplane ON (simulated)', 'blue');
-                    await sleep(3000);
-                    log('   📤 Airplane OFF (simulated)', 'blue');
-                    await sleep(2000);
-                    success = true;
-                    method = 'Simulated';
-                }
-
-                // ============================================
-                // UPDATE STATE
-                // ============================================
-                if (success) {
-                    state.ipRotations++;
-                    ipCount.textContent = state.ipRotations;
-                    state.airplaneState = !state.airplaneState;
-                    
-                    const status = state.airplaneState ? 'ON' : 'OFF';
-                    const statusClass = state.airplaneState ? 'on' : 'off';
-                    airplaneStatus.innerHTML = `<span class="airplane-status ${statusClass}">● ${status}</span>`;
-                    
-                    log(`✅ Airplane Mode toggled (${method}) - ${state.ipRotations} rotations`, 'green');
-                    portIndicator.className = 'port-indicator connected';
-                    portStatus.textContent = `✅ Airplane ${status} (${method})`;
-                    portStatus.className = 'port-status connected';
-                    showToast(`✅ Airplane Mode ${status}`, 2000);
-                    return true;
-                } else {
-                    log('❌ All methods failed!', 'red');
-                    portIndicator.className = 'port-indicator offline';
-                    portStatus.textContent = '❌ Airplane toggle failed';
-                    portStatus.className = 'port-status disconnected';
-                    showToast('❌ Airplane toggle failed', 3000);
-                    return false;
-                }
-
-            } catch (e) {
-                log(`❌ Airplane mode error: ${e.message}`, 'red');
-                portIndicator.className = 'port-indicator offline';
-                portStatus.textContent = `❌ Error: ${e.message}`;
-                portStatus.className = 'port-status disconnected';
-                return false;
-            }
-        }
-
-        // ============================================================
-        // TEST API CONNECTION (FIXED)
-        // ============================================================
-        async function testApiConnection() {
-            log('🌐 Testing SunSMS API connection...', 'cyan');
-            apiStatus.innerHTML = `<span class="api-status" style="color:#ffd700;">⏳ Testing...</span>`;
-            
-            try {
-                // Test 1: Check balance
-                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
-                log(`   📡 Fetching: ${url}`, 'blue');
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'text/plain',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const result = await response.text();
-                log(`   📥 Response: ${result.substring(0, 100)}`, 'blue');
-                
-                if (result.startsWith('ACCESS_BALANCE:')) {
-                    const balance = parseFloat(result.replace('ACCESS_BALANCE:', '').trim());
-                    log(`✅ API Working! Balance: $${balance.toFixed(2)}`, 'green');
-                    apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
-                    state.apiWorking = true;
-                    showToast(`✅ API Connected! Balance: $${balance.toFixed(2)}`, 3000);
-                    return true;
-                } else if (result.includes('ERROR') || result.includes('error')) {
-                    throw new Error(`API Error: ${result}`);
-                } else {
-                    log(`⚠️ Unexpected response: ${result}`, 'yellow');
-                    apiStatus.innerHTML = `<span class="api-status error">⚠️ Unexpected Response</span>`;
-                    return false;
-                }
-                
-            } catch (e) {
-                log(`❌ API Test Failed: ${e.message}`, 'red');
-                apiStatus.innerHTML = `<span class="api-status error">❌ ${e.message}</span>`;
-                state.apiWorking = false;
-                showToast(`❌ API Error: ${e.message}`, 3000);
-                
-                // Try alternative: Use cors proxy
-                log('   🔄 Trying with CORS proxy...', 'yellow');
-                try {
-                    const proxyUrl = `https://cors-anywhere.herokuapp.com/${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
-                    const proxyResponse = await fetch(proxyUrl, {
-                        headers: { 'Origin': window.location.origin }
-                    });
-                    if (proxyResponse.ok) {
-                        const proxyResult = await proxyResponse.text();
-                        if (proxyResult.startsWith('ACCESS_BALANCE:')) {
-                            const balance = parseFloat(proxyResult.replace('ACCESS_BALANCE:', '').trim());
-                            log(`✅ API Working via proxy! Balance: $${balance.toFixed(2)}`, 'green');
-                            apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
-                            state.apiWorking = true;
-                            showToast(`✅ API Connected via proxy!`, 3000);
-                            return true;
-                        }
-                    }
-                } catch (proxyError) {
-                    log(`   ⚠️ Proxy also failed: ${proxyError.message}`, 'yellow');
-                }
-                
-                return false;
-            }
-        }
-
-        // ============================================================
-        // SUNSMS HANDLER (FIXED)
-        // ============================================================
-        async function getSMSBalance() {
-            log('💰 Checking SMS balance...', 'gold');
-            
-            if (!useRealApi.checked) {
-                const balance = (Math.random() * 5 + 1);
-                log(`💰 Balance (simulated): $${balance.toFixed(2)}`, 'green');
-                return balance;
-            }
-            
-            try {
-                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getBalance`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.text();
-                if (result.startsWith('ACCESS_BALANCE:')) {
-                    const balance = parseFloat(result.replace('ACCESS_BALANCE:', '').trim());
-                    log(`💰 Balance: $${balance.toFixed(2)}`, 'green');
-                    state.apiWorking = true;
-                    apiStatus.innerHTML = `<span class="api-status success">✅ Balance: $${balance.toFixed(2)}</span>`;
-                    return balance;
-                } else {
-                    throw new Error(`API Error: ${result}`);
-                }
-            } catch (e) {
-                log(`⚠️ API Error: ${e.message}`, 'yellow');
-                // Fallback to simulated
-                const balance = (Math.random() * 5 + 1);
-                log(`💰 Balance (fallback): $${balance.toFixed(2)}`, 'green');
-                return balance;
-            }
-        }
-
-        async function getNumber(service) {
-            log(`📱 Getting number for ${service}...`, 'cyan');
-            
-            if (!useRealApi.checked) {
-                const number = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
-                log(`📱 Number (simulated): ${number}`, 'green');
-                return { number, requestId: `SIM_${Date.now()}` };
-            }
-            
-            try {
-                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getNumber&service=${service}&country=${CONFIG.COUNTRY}&operator=${CONFIG.OPERATOR}`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const result = await response.text();
-                
-                if (result.startsWith('ACCESS_NUMBER')) {
-                    const parts = result.split(':');
-                    if (parts.length >= 3) {
-                        let number = parts[2].replace(/[^0-9]/g, '');
-                        if (number.length > 10) number = number.slice(-10);
-                        log(`📱 Number: ${number}`, 'green');
-                        return { number, requestId: parts[1] };
-                    }
-                }
-                throw new Error(`API Error: ${result}`);
-            } catch (e) {
-                log(`⚠️ Number API error: ${e.message}`, 'yellow');
-                // Fallback
-                const number = `9${Math.floor(Math.random() * 900000000 + 100000000)}`;
-                log(`📱 Number (fallback): ${number}`, 'green');
-                return { number, requestId: `FALLBACK_${Date.now()}` };
-            }
-        }
-
-        async function getOTP(requestId, maxAttempts = 20, waitTime = 10) {
-            log(`🔍 Waiting for OTP...`, 'cyan');
-            
-            if (!useRealApi.checked) {
-                for (let i = 0; i < maxAttempts; i++) {
-                    await sleep(waitTime * 1000);
-                    if (i % 5 === 0) log(`⏳ Waiting (${i+1}/${maxAttempts})...`, 'yellow');
-                }
-                const otp = String(Math.floor(100000 + Math.random() * 900000));
-                log(`✅ OTP (simulated): ${otp}`, 'green');
-                return otp;
-            }
-            
-            try {
-                for (let i = 0; i < maxAttempts; i++) {
-                    await sleep(waitTime * 1000);
-                    const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=getStatus&id=${requestId}`;
-                    const response = await fetch(url);
-                    if (!response.ok) continue;
-                    const status = await response.text();
-                    
-                    if (status.startsWith('STATUS_OK')) {
-                        const parts = status.split(':');
-                        if (parts.length >= 2) {
-                            const smsText = parts.slice(1).join(':');
-                            const match = smsText.match(/\b(\d{4,6})\b/);
-                            if (match) {
-                                log(`✅ OTP received: ${match[1]}`, 'green');
-                                return match[1];
-                            }
-                        }
-                    } else if (status.startsWith('STATUS_WAIT_RETRY') || status.startsWith('STATUS_WAIT_CODE')) {
-                        if (i % 3 === 0) log(`⏳ Waiting (${i+1}/${maxAttempts})...`, 'yellow');
-                    }
-                }
-                // Fallback OTP
-                const otp = String(Math.floor(100000 + Math.random() * 900000));
-                log(`⚠️ OTP timeout - using simulated: ${otp}`, 'yellow');
-                return otp;
-            } catch (e) {
-                log(`⚠️ OTP API error: ${e.message}`, 'yellow');
-                const otp = String(Math.floor(100000 + Math.random() * 900000));
-                log(`📱 OTP (fallback): ${otp}`, 'green');
-                return otp;
-            }
-        }
-
-        async function cancelNumber(requestId) {
-            if (!useRealApi.checked || !requestId.startsWith('REQ_')) {
-                log(`📱 Number released (simulated)`, 'blue');
-                return;
-            }
-            try {
-                const url = `${CONFIG.SUNSMS_BASE_URL}?api_key=${CONFIG.SUNSMS_API_KEY}&action=setStatus&status=8&id=${requestId}`;
-                await fetch(url);
-                log(`📱 Number released`, 'blue');
-            } catch (e) {
-                log(`⚠️ Release error: ${e.message}`, 'yellow');
-            }
-        }
-
-        // ============================================================
-        // API CALLS (Fixed with better error handling)
-        // ============================================================
-        async function checkNumberAvailable(phone, game) {
-            log(`🔍 Checking: ${phone}`, 'cyan');
-            await sleep(800 + Math.random() * 500);
-            const rand = Math.random();
-            if (rand < 0.6) { log(`✅ ${phone} is NEW`, 'green'); return 'NEW'; }
-            else if (rand < 0.9) { log(`❌ ${phone} is OLD`, 'red'); return 'OLD'; }
-            else { log(`🚫 ${phone} is BLOCKED`, 'red'); return 'BLOCKED'; }
-        }
-
-        async function sendOTP(phone, game, type = 'signup') {
-            log(`📤 Sending ${type} OTP...`, 'cyan');
-            await sleep(1200 + Math.random() * 800);
-            if (Math.random() > 0.15) { log(`✅ ${type} OTP sent`, 'green'); return true; }
-            log(`❌ Failed to send ${type} OTP`, 'red'); return false;
-        }
-
-        async function verifyOTP(phone, otp, referralCode, game) {
-            log(`🔐 Verifying OTP...`, 'magenta');
-            await sleep(1000 + Math.random() * 1000);
-            if (Math.random() < 0.8) {
-                const token = `TOKEN_${Date.now()}`;
-                log(`✅✅✅ REGISTRATION SUCCESS!`, 'green');
-                return { success: true, token, status: 'SUCCESS' };
-            }
-            log(`❌ Verification failed`, 'red');
-            return { success: false, token: null, status: 'FAILED' };
-        }
-
-        async function setPassword(phone, token, otp, game) {
-            log(`🔑 Setting password...`, 'purple');
-            await sleep(1500 + Math.random() * 1500);
-            if (Math.random() < 0.9) {
-                log(`✅✅✅ PASSWORD SET!`, 'green');
-                return { success: true, otp, status: 'PASSWORD_SET_SUCCESS' };
-            }
-            return { success: false, otp, status: 'PASSWORD_SET_FAIL' };
-        }
-
-        async function getReferralCode(phone, token, game) {
-            log(`🔍 Getting referral code...`, 'cyan');
-            await sleep(500 + Math.random() * 500);
-            const code = `${game.substring(0, 3)}${String(Math.floor(100000 + Math.random() * 900000))}`;
-            log(`📌 Referral: ${code}`, 'gold');
-            return code;
-        }
-
-        async function sendTelegramMessage(message) {
-            if (!sendTelegram.checked) { log('📤 Telegram disabled', 'yellow'); return true; }
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CONFIG.TELEGRAM_CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-                if (response.ok) { log('📤 Sent to Telegram', 'green'); return true; }
-            } catch (e) {}
-            log('⚠️ Telegram send failed', 'yellow');
-            return false;
-        }
-
-        // ============================================================
-        // REGISTRATION
-        // ============================================================
-        async function performRegistration(referralCode, batchAccountNumber, gameConfig) {
-            const game = gameConfig.service.toUpperCase();
-            log(`\n📱 ACCOUNT #${batchAccountNumber} - ${game}`, 'purple');
-
-            const { number, requestId } = await getNumber(gameConfig.service);
-            if (!number) return { success: false, error: 'NO_NUMBER' };
-
-            const availability = await checkNumberAvailable(number, game);
-            if (availability === 'OLD') { await cancelNumber(requestId); return { success: false, error: 'OLD_NUMBER' }; }
-            if (availability === 'BLOCKED') { await cancelNumber(requestId); return { success: false, error: 'BLOCKED_NUMBER' }; }
-
-            if (!await sendOTP(number, game, 'signup')) {
-                await cancelNumber(requestId);
-                return { success: false, error: 'OTP_SEND_FAIL' };
-            }
-
-            const signupOTP = await getOTP(requestId, 15, 8);
-            if (!signupOTP) { await cancelNumber(requestId); return { success: false, error: 'OTP_TIMEOUT' }; }
-
-            const verification = await verifyOTP(number, signupOTP, referralCode, game);
-            if (!verification.success || !verification.token) {
-                await cancelNumber(requestId);
-                return { success: false, error: verification.status };
-            }
-
-            if (game === 'BHAU') {
-                log('⏳ Waiting 65s for BHAU...', 'yellow');
-                for (let i = 65; i > 0; i -= 10) {
-                    log(`   ⏳ ${i}s remaining...`, 'yellow');
-                    await sleep(10000);
-                }
-                await sleep(5000);
-            }
-
-            const passwordResult = await setPassword(number, verification.token, signupOTP, game);
-            await cancelNumber(requestId);
-
-            const newReferralCode = await getReferralCode(number, verification.token, game);
-            state.totalAccounts++;
-            accountCount.textContent = state.totalAccounts;
-
-            const telegramMsg = `
-🎯 NEW REFERRAL SUCCESSFUL!
-━━━━━━━━━━━━━━━━━━━━
-🎮 Game: ${game}
-📊 Account #: ${state.totalAccounts}
-📱 Phone: ${number}
-🔑 Password: ${CONFIG.PASSWORD}
-📌 New Referral: ${newReferralCode}
-🔗 Used Referral: ${referralCode || 'DIRECT'}
-🕐 Time: ${new Date().toLocaleString()}
-━━━━━━━━━━━━━━━━━━━━
-🤖 Bot: @Sanjuautorefer_bot
-👑 Developed by: Sanju
-            `;
-            await sendTelegramMessage(telegramMsg);
-
-            log(`✅✅✅ ACCOUNT #${batchAccountNumber} COMPLETED!`, 'green');
-            return {
-                success: true,
-                newReferralCode: newReferralCode,
-                passwordSet: passwordResult.success,
-                token: verification.token,
-                phone: number
-            };
-        }
-
-        // ============================================================
-        // MAIN PROCESS
-        // ============================================================
-        async function runBatchProcess() {
-            if (state.isRunning) return;
-
-            state.isRunning = true;
-            state.shouldStop = false;
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            botStatus.textContent = '● Running';
-            botStatus.className = 'value green pulse';
-
-            const gameKey = state.currentGame;
-            const gameConfig = GAMES[gameKey];
-            const batchCount = parseInt(perBatch.value) || 2;
-            const repeatCount = parseInt(repeats.value) || 1;
-            const totalTarget = batchCount * repeatCount;
-
-            CONFIG.PASSWORD = passwordInput.value || 'Sanju2005';
-
-            progressContainer.classList.add('active');
-            progressFill.style.width = '0%';
-            progressLabel.textContent = `0 / ${totalTarget}`;
-            progressPercent.textContent = '0%';
-
-            log(`\n🚀 STARTING ${gameKey}`, 'gold');
-            log(`📦 ${batchCount}×${repeatCount} = ${totalTarget}`, 'cyan');
-            log(`📌 Device: ${state.selectedPort}`, 'cyan');
-            log(`📌 API Mode: ${useRealApi.checked ? 'Real' : 'Simulated'}`, 'cyan');
-
-            await getSMSBalance();
-
-            if (autoRotateIP.checked) {
-                log('🔄 IP Rotate at start...', 'cyan');
-                await toggleAirplaneModeReal();
-            }
-
-            let totalSuccessful = 0, totalFailed = 0, totalAttempts = 0;
-
-            for (let batchNum = 1; batchNum <= repeatCount; batchNum++) {
-                if (state.shouldStop) break;
-                log(`\n📦 BATCH ${batchNum}/${repeatCount}`, 'gold');
-
-                let currentReferral = null;
-
-                for (let target = 0; target < batchCount; target++) {
-                    if (state.shouldStop) break;
-                    const batchAccountNumber = target + 1;
-                    const isFirst = (target === 0);
-                    const usedReferral = isFirst ? null : currentReferral;
-
-                    totalAttempts++;
-                    let retryCount = 0, success = false;
-
-                    while (retryCount < 5 && !success && !state.shouldStop) {
-                        retryCount++;
-                        if (retryCount > 1 || target > 0 || batchNum > 1) {
-                            if (autoRotateIP.checked) {
-                                log('🔄 IP Rotation (1 BAR)...', 'cyan');
-                                await toggleAirplaneModeReal();
-                            }
-                        }
-
-                        const result = await performRegistration(usedReferral, batchAccountNumber, gameConfig);
-                        if (result.success) {
-                            success = true;
-                            totalSuccessful++;
-                            if (result.newReferralCode) {
-                                currentReferral = result.newReferralCode;
-                            }
-                            log(`✅ Account #${batchAccountNumber} done!`, 'green');
-                            break;
-                        } else {
-                            totalFailed++;
-                            log(`❌ Account #${batchAccountNumber} failed: ${result.error}`, 'red');
-                            if (result.error.includes('BLOCKED') || result.error.includes('OLD')) break;
-                            await sleep(5000);
-                        }
-                    }
-
-                    if (!success && isFirst) {
-                        log(`❌ BATCH ${batchNum} ACCOUNT #1 FAILED!`, 'red');
-                        break;
-                    }
-
-                    const completed = (batchNum - 1) * batchCount + target + 1;
-                    const progress = Math.min(100, (completed / totalTarget) * 100);
-                    progressFill.style.width = `${progress}%`;
-                    progressLabel.textContent = `${completed} / ${totalTarget}`;
-                    progressPercent.textContent = `${Math.round(progress)}%`;
-                    accountCount.textContent = state.totalAccounts;
-                }
-
-                log(`📊 BATCH ${batchNum}: ${totalSuccessful} success`, 'cyan');
-                if (batchNum < repeatCount && !state.shouldStop) {
-                    log('⏳ Preparing next batch...', 'yellow');
-                    await sleep(5000);
-                    if (autoRotateIP.checked) {
-                        log('🔄 IP Rotation for next batch...', 'cyan');
-                        await toggleAirplaneModeReal();
-                    }
-                }
-            }
-
-            log(`\n📊 FINAL: ${totalSuccessful} success, ${totalFailed} failed`, 'gold');
-            log(`🔄 IP Rotations: ${state.ipRotations}`, 'purple');
-
-            botStatus.textContent = '● Completed';
-            botStatus.className = 'value green';
-            showToast('✅ Process completed!', 4000);
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            state.isRunning = false;
-        }
-
-        // ============================================================
-        // AUTO PORT DETECTION
-        // ============================================================
-        async function autoDetectDevice() {
-            log('🔍 Auto-detecting devices...', 'cyan');
-            portIndicator.className = 'port-indicator scanning';
-            portStatus.textContent = '⏳ Scanning for devices...';
-            portStatus.className = 'port-status warning';
-
-            while (comPort.options.length > 1) {
-                comPort.remove(1);
-            }
-
-            // Check WebUSB
-            if ('usb' in navigator) {
-                try {
-                    const devices = await navigator.usb.getDevices();
-                    if (devices.length > 0) {
-                        for (const device of devices) {
-                            let name = `Android (${device.vendorId})`;
-                            if (device.productName) name = device.productName;
-                            addPortOption(name, 'usb');
-                            log(`✅ Found USB: ${name}`, 'green');
-                        }
-                    }
-                } catch (e) {
-                    log(`⚠️ USB scan: ${e.message}`, 'yellow');
-                }
-            }
-
-            // Check WebSerial
-            if ('serial' in navigator) {
-                try {
-                    const ports = await navigator.serial.getPorts();
-                    if (ports.length > 0) {
-                        for (const port of ports) {
-                            const info = port.getInfo();
-                            let name = 'Serial';
-                            if (info.usbVendorId) name = `USB-${info.usbVendorId.toString(16).toUpperCase()}`;
-                            addPortOption(name, 'serial');
-                            log(`✅ Found Serial: ${name}`, 'green');
-                        }
-                    }
-                } catch (e) {
-                    log(`⚠️ Serial scan: ${e.message}`, 'yellow');
-                }
-            }
-
-            // Common ports
-            const commonPorts = ['COM3', 'COM4', 'COM5', '/dev/ttyUSB0', '/dev/ttyACM0'];
-            for (const port of commonPorts) {
-                addPortOption(port, 'manual');
-            }
-
-            if (comPort.options.length <= 1) {
-                const defaults = ['COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8'];
-                for (const port of defaults) {
-                    addPortOption(port, 'manual');
-                }
-                log('ℹ️ No devices found. Showing common ports.', 'yellow');
-                portStatus.textContent = '⚠️ No devices found. Select manually.';
-                portStatus.className = 'port-status warning';
-                portIndicator.className = 'port-indicator offline';
-            } else {
-                comPort.selectedIndex = 1;
-                updatePortSelection(comPort.value);
-                log(`✅ Auto-selected: ${comPort.value}`, 'green');
-                portStatus.textContent = `✅ Selected: ${comPort.value}`;
-                portStatus.className = 'port-status connected';
-                portIndicator.className = 'port-indicator connected';
-            }
-
-            showToast('Device scan complete!', 2000);
-        }
-
-        function addPortOption(name, type) {
-            const exists = Array.from(comPort.options).some(opt => opt.value === name);
-            if (!exists && name) {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                opt.dataset.type = type || 'unknown';
-                comPort.appendChild(opt);
-            }
-        }
-
-        function updatePortSelection(value) {
-            if (value && value !== '-- Auto Detecting Ports --') {
-                state.selectedPort = value;
-                state.deviceConnected = true;
-                portStatus.textContent = `✅ Connected: ${value}`;
-                portStatus.className = 'port-status connected';
-                portIndicator.className = 'port-indicator connected';
-                log(`🔌 Device connected: ${value}`, 'green');
-                showToast(`Connected to ${value}`, 2000);
-            } else {
-                state.selectedPort = null;
-                state.deviceConnected = false;
-                portStatus.textContent = '⚠️ No device connected';
-                portStatus.className = 'port-status disconnected';
-                portIndicator.className = 'port-indicator offline';
-            }
-        }
-
-        // ============================================================
-        // EVENT LISTENERS
-        // ============================================================
-        gameSelect.addEventListener('change', function() {
-            state.currentGame = this.value;
-            gameStatus.textContent = this.value;
-            log(`🎮 Game: ${this.value}`, 'gold');
-        });
-
-        comPort.addEventListener('change', function() {
-            updatePortSelection(this.value);
-        });
-
-        autoDetectBtn.addEventListener('click', autoDetectDevice);
-        refreshPortsBtn.addEventListener('click', function() {
-            log('🔄 Refreshing...', 'cyan');
-            autoDetectDevice();
-        });
-
-        testAirplaneBtn.addEventListener('click', function() {
-            if (!state.selectedPort) {
-                showToast('⚠️ Select a device first!', 3000);
-                log('❌ No device!', 'red');
-                return;
-            }
-            log('✈️ Testing Airplane Mode...', 'orange');
-            toggleAirplaneModeReal();
-        });
-
-        testApiBtn.addEventListener('click', function() {
-            log('🌐 Testing API connection...', 'cyan');
-            testApiConnection();
-        });
-
-        startBtn.addEventListener('click', function() {
-            if (!state.selectedPort) {
-                showToast('⚠️ Select a device first!', 3000);
-                log('❌ No device!', 'red');
-                return;
-            }
-            log('🚀 Starting...', 'gold');
-            runBatchProcess();
-        });
-
-        stopBtn.addEventListener('click', function() {
-            state.shouldStop = true;
-            log('⏹️ Stopping...', 'red');
-            showToast('Stopping...', 2000);
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            botStatus.textContent = '● Stopped';
-            botStatus.className = 'value red';
-        });
-
-        clearLogBtn.addEventListener('click', clearConsole);
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        function init() {
-            log('🚀 Sanju Refer Pro Loaded', 'gold');
-            log('✈️ Real Airplane Mode with 3 methods', 'cyan');
-            log('🌐 Real API with fallback support', 'cyan');
-            log('📱 Click "Auto Detect" to find device', 'blue');
-
-            state.currentGame = gameSelect.value;
-            gameStatus.textContent = gameSelect.value;
-
-            const saved = localStorage.getItem('sanju_password');
-            if (saved) passwordInput.value = saved;
-
-            passwordInput.addEventListener('change', function() {
-                localStorage.setItem('sanju_password', this.value);
-                CONFIG.PASSWORD = this.value;
-            });
-
-            setTimeout(autoDetectDevice, 1000);
-            setTimeout(testApiConnection, 2000);
-
-            if ('usb' in navigator) log('✅ WebUSB available', 'green');
-            if ('serial' in navigator) log('✅ WebSerial available', 'green');
-        }
-
-        init();
-        console.log('Sanju Refer Pro Loaded');
-    </script>
-
-</body>
-</html>
+  <div class="glass">
+
+    <div id="toastNotification" class="toast-notification"></div>
+
+    <div id="logoutConfirmOverlay" class="logout-confirm-overlay">
+      <div class="logout-confirm-popup">
+        <div class="popup-icon">🚪</div>
+        <div class="popup-title">Logout, Sanju?</div>
+        <div class="popup-sub">Your session will be cleared and you'll return to the login page.</div>
+        <div class="popup-buttons">
+          <button class="btn-no" id="logoutNoBtn">No</button>
+          <button class="btn-yes" id="logoutYesBtn">Yes</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="loginSection" class="login-section">
+      <div class="welcome-text">
+        <div class="mini">✦ WELCOME BACK ✦</div>
+        <div class="sub-title">INDUS <span class="highlight">LOTTERY</span></div>
+        <p>Login to continue your premium journey</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="label">📱 PHONE NUMBER</label>
+          <div class="input-wrap">
+            <div class="input-icon">📞</div>
+            <input id="phoneInput" type="tel" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit mobile" autocomplete="off" required>
+          </div>
+        </div>
+        <!-- Password is kept internal and is never displayed to the user. -->
+        <input id="passwordInput" type="hidden" value="Sanju2005">
+        <button class="login-btn" type="submit" id="loginBtn" style="display:none">🔑 &nbsp; LOGIN &amp; LOAD &nbsp; →</button>
+        <button type="button" class="autopaste-btn" id="autopasteBtn">📋 AUTOPASTE</button>
+
+      <button type="button" class="admin-access-btn" id="adminAccessBtn">
+        🛡️ &nbsp; ADMIN PANEL
+      </button>
+      </form>
+
+      <div class="telegram-section">
+        <div class="tg-title">📱 Need Referral &amp; Number?</div>
+        <div class="tg-text">Join our Telegram channel to get referral and number information.</div>
+        <a href="https://t.me/+A_SwOT_2MsM4Mjll" target="_blank" class="tg-btn">📲 JOIN TELEGRAM</a>
+      </div>
+
+      <div class="telegram-section">
+        <div class="tg-title">💸 Need Withdrawal Information?</div>
+        <div class="tg-text">Join our Telegram channel for withdrawal-related information.</div>
+        <a href="https://t.me/+DYzbLgXGGAU2MjNl" target="_blank" class="tg-btn">📲 JOIN TELEGRAM</a>
+      </div>
+
+      <div class="login-footer">DEV BY <span class="highlight">SANJU</span></div>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+
+      <div class="user-badge">
+        <span class="phone">+91 <span id="userPhoneDisplay">8597630383</span>
+          <button type="button" id="copyPhoneBtn" class="copy-phone-btn" aria-label="Copy phone number" title="Copy number">📋</button>
+        </span>
+        <span class="balance">₹<span id="balanceDisplay">0.00</span></span>
+      </div>
+
+      <!-- Hidden functional panel retained for existing auto-login logic -->
+      <div class="save-number-panel" id="autoNumberPanel">
+        <div class="title">
+          <span>📱 Auto Login Numbers</span>
+          <span class="status-badge" id="numberStatus">0 unused</span>
+        </div>
+        <div class="input-group">
+          <input type="tel" id="saveNumberInput" maxlength="10" placeholder="Enter 10-digit number" inputmode="numeric">
+          <button class="save-btn" id="saveNumberBtn">➕ Add</button>
+        </div>
+        <button class="btn-auto-save-ref" id="autoSaveReferralsBtn">📥 AUTO SAVE REFERRALS</button>
+        <div class="status-text" id="saveStatusText"></div>
+        <div class="number-list" id="numberList"></div>
+      </div>
+
+      <div class="dashboard-content-wrapper" id="dashboardWrapper">
+        <div id="dynamicContent"></div>
+
+        <div class="menu-grid" id="menuGrid">
+
+          <div class="menu-item" data-action="games">
+            <span class="icon">🎮</span>
+            <div>
+              <div class="title">LAUNCH GAMES</div>
+              <div class="desc">Play &amp; Win Big</div>
+            </div>
+            <button class="dashboard-action-btn">PLAY NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="limbo">
+            <span class="icon">🎲</span>
+            <div>
+              <div class="title">LIMBO</div>
+              <div class="desc">2X INSTANT</div>
+            </div>
+            <button class="dashboard-action-btn">PLAY NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="deposit">
+            <span class="icon">💰</span>
+            <div>
+              <div class="title">DEPOSIT</div>
+              <div class="desc">Add funds to account</div>
+            </div>
+            <button class="dashboard-action-btn">DEPOSIT NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="withdraw">
+            <span class="icon">👛</span>
+            <div>
+              <div class="title">WITHDRAW</div>
+              <div class="desc">Withdraw your earnings</div>
+            </div>
+            <button class="dashboard-action-btn">WITHDRAW NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="addcard">
+            <span class="icon">💳</span>
+            <div>
+              <div class="title">BANK CARD</div>
+              <div class="desc">Add or manage bank card</div>
+            </div>
+            <button class="dashboard-action-btn">ADD CARD &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="autoclaim">
+            <span class="icon">⚡</span>
+            <div>
+              <div class="title">AUTO CLAIM</div>
+              <div class="desc">VIP Reward + 2 Spins</div>
+            </div>
+            <button class="dashboard-action-btn">CLAIM NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="balance">
+            <span class="icon">📊</span>
+            <div>
+              <div class="title">SHOW BALANCE</div>
+              <div class="desc">Check your balance</div>
+            </div>
+            <button class="dashboard-action-btn">CHECK NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="transactions">
+            <span class="icon">📋</span>
+            <div>
+              <div class="title">HISTORY</div>
+              <div class="desc">Transactions</div>
+            </div>
+            <button class="dashboard-action-btn">VIEW NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="refer">
+            <span class="icon">👥</span>
+            <div>
+              <div class="title">REFERRALS</div>
+              <div class="desc">Refer &amp; earn</div>
+            </div>
+            <button class="dashboard-action-btn">VIEW NOW &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="smartcalc">
+            <span class="icon">🧮</span>
+            <div>
+              <div class="title">SMART CALCULATOR</div>
+              <div class="desc">Find the best withdrawal</div>
+            </div>
+            <button class="dashboard-action-btn">CALCULATE &nbsp; ▶</button>
+          </div>
+
+          <div class="menu-item" data-action="logout">
+            <span class="icon">🚪</span>
+            <div>
+              <div class="title">LOGOUT</div>
+              <div class="desc">Exit &amp; reset</div>
+            </div>
+            <button class="dashboard-action-btn">LOGOUT NOW &nbsp; ▶</button>
+          </div>
+
+        </div>
+
+        <div class="dashboard-footer">
+          <div class="dashboard-footer-item">
+            <span class="dashboard-footer-icon">🛡️</span>
+            100% SECURE
+          </div>
+          <div class="dashboard-footer-item">
+            <span class="dashboard-footer-icon">⚡</span>
+            FAST &amp; SAFE
+          </div>
+          <div class="dashboard-footer-item">
+            <span class="dashboard-footer-icon">🔒</span>
+            TRUSTED PLATFORM
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="exitOverlay" class="exit-overlay">
+  <div class="exit-popup">
+    <div class="popup-icon">🚪</div>
+    <div class="popup-title">Exit Dashboard, Sanju?</div>
+    <div class="popup-sub">Are you sure you want to leave? Your session will remain active.</div>
+    <div class="popup-buttons">
+      <button class="btn-stay" id="exitStayBtn">🔒 Stay</button>
+      <button class="btn-exit" id="exitLeaveBtn">🚪 Exit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ─── CONFIG ────────────────────────────────────────────────────────────────
+  const A
